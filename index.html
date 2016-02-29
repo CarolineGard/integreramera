@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>integrera mera</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+            body {
+                color: #61443e;
+                font-family:Monospace;
+                font-size:13px;
+                text-align:center;
+
+                background-color: #bfd1e5;
+                margin: 0px;
+                overflow: hidden;
+            }
+        </style>
+
+        <!--SHADERS-->
+
+        <!--VERTEX-SHADERS-->
+
+        <!--FRAGMENT-SHADERS-->
+        
+    </head>
+    
+    <body>
+
+        <div id="container"><br /><br /><br /><br /><br />Generating...</div>
+
+        <script src="js/three.min.js"></script>
+        <script src="js/stats.min.js"></script>
+
+
+        <script>
+
+            var geometry, texture;
+            var camera, scene, renderer, refractCamera; 
+            var container, stats;
+            
+
+            var attributes, uniforms, min = 1, max = 20;
+
+
+            init();
+            animate();
+
+            function init() {
+
+                //-----SCENE SETTINGS------------------------
+                container = document.getElementById( 'container' );
+                scene = new THREE.Scene();
+
+                //camera
+                camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
+                camera.position.set(150, 60, 100);
+                camera.lookAt( scene.position );
+                scene.add(camera);
+
+                //Renderer
+                renderer = new THREE.WebGLRenderer({alpha:true});
+                renderer.setClearColor( 0x000000 );
+                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize( window.innerWidth, window.innerHeight );
+
+
+
+
+                //-----LIGHT---------------------------------
+                // add subtle ambient lighting
+                var ambientLight = new THREE.AmbientLight('white');
+                scene.add(ambientLight);
+                // add spotlight for the shadows
+                var spotLight = new THREE.SpotLight('white');
+                spotLight.position.set(50,90,-90);
+                spotLight.castShadow = true;
+                scene.add(spotLight);
+
+                renderer.shadowMapEnabled = true;
+
+
+
+
+
+
+
+
+
+                container.innerHTML = "";
+
+                container.appendChild( renderer.domElement );
+
+                stats = new Stats();
+                stats.domElement.style.position = 'absolute';
+                stats.domElement.style.top = '0px';
+                container.appendChild( stats.domElement );
+
+                window.addEventListener( 'resize', onWindowResize, false );
+
+            }
+
+
+            function onWindowResize() 
+            {
+
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize( window.innerWidth, window.innerHeight );
+
+
+
+
+            }
+
+            function animate() 
+            {
+                requestAnimationFrame( animate );
+
+                render();
+                stats.update();
+            }
+
+            // Render-loop, updates everything that happens in the scene
+            function render() 
+            {
+                
+                // mesh.geometry.verticesNeedUpdate = true;
+
+
+                //controls.update( clock.getDelta() );
+                renderer.render( scene, camera );
+            }
+
+        </script>
+    </body>
+</html>
