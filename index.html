@@ -6,133 +6,269 @@
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
             body {
-                color: #61443e;
+                color: #000000;
                 font-family:Monospace;
                 font-size:13px;
                 text-align:center;
 
-                background-color: #bfd1e5;
+                background-color: #000000;
                 margin: 0px;
                 overflow: hidden;
             }
         </style>
+    </head>
+
+    <body>
+        <div id="container"></div>
+        <div id="info"><a href="http://threejs.org" target="_blank">three.js</a> webgl - interactive - particles</div>
+
+
+
+        
+
+        <script src="js/three.min.js"></script>
+        <script src="js/Detector.js"></script>
+        <script src="js/renderers/CanvasRenderer.js"></script>
+        <script src="js/renderers/Projector.js"></script>
+        <script src="js/libs/stats.min.js"></script>
+        <script src="js/objects/ShadowMesh.js"></script>
+         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 
         <!--SHADERS-->
 
-        <!--VERTEX-SHADERS-->
+        <!--Vertex shaders-->
 
-        <!--FRAGMENT-SHADERS-->
-        
-    </head>
-    
-    <body>
+        <script type="x-shader/x-vertex" id="vertexshader">
 
-        <div id="container"><br /><br /><br /><br /><br />Generating...</div>
+            attribute float size;
+            attribute vec3 customColor;
 
-        <script src="js/three.min.js"></script>
-        <script src="js/stats.min.js"></script>
+            varying vec3 vColor;
+
+            void main() {
+
+                vColor = customColor;
+
+                vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+                gl_PointSize = size * ( 300.0 / -mvPosition.z );
+
+                gl_Position = projectionMatrix * mvPosition;
+
+            }
+
+        </script>
+
+        <script type="x-shader/x-fragment" id="fragmentshader">
+
+            uniform vec3 color;
+            uniform sampler2D texture;
+
+            varying vec3 vColor;
+
+            void main() {
+
+                gl_FragColor = vec4( color * vColor, 1.0 );
+
+                gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+
+                if ( gl_FragColor.a < ALPHATEST ) discard;
+
+            }
+        </script>
 
 
         <script>
 
-            var geometry, texture;
-            var camera, scene, renderer, refractCamera; 
+            if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
             var container, stats;
-            
+            var camera, scene, renderer;
+            var mouseX = 0, mouseY = 0;
+            var group;
+            var particle;
 
-            var attributes, uniforms, min = 1, max = 20;
+            var clock = new THREE.Clock();
+            var sunLight = new THREE.DirectionalLight( 'rgb(255,255,255)', 1.5 );
+            var useDirectionalLight = true;
+            var NormalVector = new THREE.Vector3( 0, 1, 0 );
+            var lightPosition4D = new THREE.Vector4();
+            var verticalAngle = 0;
+            var horizontalAngle = 0;
+            var frameTime = 0;
+            var TWO_PI = Math.PI * 2;
 
+            var starParticles;
+            var raycaster;
+            var PARTICLE_SIZE = 20;
+
+            var earthMaterial, earthMesh;
 
             init();
             animate();
 
             function init() {
 
-                //-----SCENE SETTINGS------------------------
                 container = document.getElementById( 'container' );
+
+                camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+                camera.position.z = 250;
+
                 scene = new THREE.Scene();
 
-                //camera
-                camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
-                camera.position.set(150, 60, 100);
-                camera.lookAt( scene.position );
-                scene.add(camera);
+                group = new THREE.Group();
+                scene.add(group);
 
-                //Renderer
-                renderer = new THREE.WebGLRenderer({alpha:true});
-                renderer.setClearColor( 0x000000 );
+                //LIGHT -----------------------------------
+                sunLight.position.set(0.7, 6, 4 );
+                sunLight.lookAt( scene.position );
+                scene.add( sunLight );
+
+                lightPosition4D.x = sunLight.position.x;
+                lightPosition4D.y = sunLight.position.y;
+                lightPosition4D.z = sunLight.position.z;
+                lightPosition4D.w = 0.001; // must be slighty greater than 0, due causing matrixinverse errors
+
+                //EARTH ------------------------------------------------
+                var earthGeometry = new THREE.SphereGeometry(20, 20, 20);
+                earthGeometry.castShadow = true;
+                earthGeometry.receiveShadow = false;
+
+                earthMaterial = new THREE.MeshPhongMaterial({
+                    map: THREE.ImageUtils.loadTexture('images/nasa4.jpg'),
+                    //color: 0xff00bb,
+                    overdraw: 0.5
+                    //bumpMap: THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
+                    //bumpScale: 0.5,
+                    //specularMap: THREE.ImageUtils.loadTexture('images/earthspec1k.jpg'),
+                    //specular: new THREE.Color('grey')
+                });
+                earthMesh = new THREE.Mesh( earthGeometry, earthMaterial );
+                scene.add ( earthMesh );
+
+                //PARTICLES -----------------------------------------------
+                var starGeometry = new THREE.SphereGeometry( 200, 200, 16, 16 );
+                var vertices = starGeometry.vertices;
+
+                var starPositions = new Float32Array( vertices.length * 3 );
+                var starColors = new Float32Array( vertices.length * 3 );
+                var starSizes = new Float32Array( vertices.length );
+
+                var vertex;
+                var starColor = new THREE.Color();
+
+
+                for ( var i = 0, l = vertices.length; i < l; i ++ ) {
+
+                    vertex = vertices[ i ];
+                    vertex.toArray( starPositions, i * 3 );
+
+                    starColor.setHSL( 0.01 + 0.1 * ( i / l ), 1.0, 0.5 )
+                    starColor.toArray( starColors, i * 3 );
+
+                    starSizes[ i ] = PARTICLE_SIZE * 0.5;
+                }
+
+                var stars = new THREE.BufferGeometry();
+                stars.addAttribute( 'position', new THREE.BufferAttribute( starPositions, 3 ) );
+                stars.addAttribute( 'customColor', new THREE.BufferAttribute( starColors, 3 ) );
+                stars.addAttribute( 'size', new THREE.BufferAttribute( starSizes, 1 ) );
+
+            
+
+                var starMaterial = new THREE.ShaderMaterial( {
+                    uniforms: {
+                        color:   { type: "c", value: new THREE.Color( 0xffffff ) },
+                        texture: { type: "t", value: new THREE.TextureLoader().load( "textures/disc.png" ) }
+                    },
+                    vertexShader: document.getElementById( 'vertexshader' ).textContent,
+                    fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+
+                    alphaTest: 0.9,
+
+                } );
+
+
+                particles = new THREE.Points( stars, starMaterial );
+                scene.add( particles );
+
+
+
+
+
+                //RENDERING------------------
+                renderer = new THREE.WebGLRenderer();
+                renderer.setClearColor( 'rgb(0,0,0)' );
                 renderer.setPixelRatio( window.devicePixelRatio );
-                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.setSize ( window.innerWidth, window.innerHeight );
+                document.getElementById( "container" ).appendChild( renderer.domElement );
+                window.addEventListener( 'resize' , onWindowResize, false );
 
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                renderer.sortObjects = false;
 
-
-
-                //-----LIGHT---------------------------------
-                // add subtle ambient lighting
-                var ambientLight = new THREE.AmbientLight('white');
-                scene.add(ambientLight);
-                // add spotlight for the shadows
-                var spotLight = new THREE.SpotLight('white');
-                spotLight.position.set(50,90,-90);
-                spotLight.castShadow = true;
-                scene.add(spotLight);
-
-                renderer.shadowMapEnabled = true;
-
-
-
-
-
-
-
-
-
-                container.innerHTML = "";
-
-                container.appendChild( renderer.domElement );
+                raycaster = new THREE.Raycaster();
 
                 stats = new Stats();
                 stats.domElement.style.position = 'absolute';
                 stats.domElement.style.top = '0px';
                 container.appendChild( stats.domElement );
 
+                document.addEventListener( 'mousemove', onDocumentMouseMove, false );
                 window.addEventListener( 'resize', onWindowResize, false );
 
             }
 
+            function onDocumentMouseMove( event ) {
 
-            function onWindowResize() 
-            {
+                event.preventDefault();
+                
+                mouseX = ( 0.5*event.clientX - 0.5*(window.innerWidth / 2) );
+                mouseY = ( 0.5*event.clientY - 0.5*(window.innerWidth / 2) );
 
+            }
+
+            function onWindowResize() {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
 
                 renderer.setSize( window.innerWidth, window.innerHeight );
 
-
-
-
             }
 
-            function animate() 
-            {
+            function animate() {
+
                 requestAnimationFrame( animate );
+
+                timeFrame = clock.getDelta(); 
 
                 render();
                 stats.update();
+
             }
 
-            // Render-loop, updates everything that happens in the scene
-            function render() 
-            {
-                
-                // mesh.geometry.verticesNeedUpdate = true;
+            function render() {
 
+                particles.rotation.x += 0.0005;
+                particles.rotation.y += 0.001;
 
-                //controls.update( clock.getDelta() );
+                camera.position.x += ( mouseX - camera.position.x ) * 0.095;
+                camera.position.y += ( - mouseY - camera.position.y ) * 0.095;
+
+                camera.lookAt( scene.position );
+
+                //group.rotation.y -= 0.005;
+
                 renderer.render( scene, camera );
+                //requestAnimationFrame( render );
+
+                renderer.render( scene, camera );
+
             }
 
         </script>
+
     </body>
+
 </html>
