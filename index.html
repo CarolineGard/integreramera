@@ -22,10 +22,6 @@
         <div id="container"></div>
         <div id="info"><a href="http://threejs.org" target="_blank">three.js</a> webgl - interactive - particles</div>
 
-
-
-        
-
         <script src="js/three.min.js"></script>
         <script src="js/Detector.js"></script>
         <script src="js/renderers/CanvasRenderer.js"></script>
@@ -93,14 +89,12 @@
             var useDirectionalLight = true;
             var NormalVector = new THREE.Vector3( 0, 1, 0 );
             var lightPosition4D = new THREE.Vector4();
-            var verticalAngle = 0;
-            var horizontalAngle = 0;
-            var frameTime = 0;
-            var TWO_PI = Math.PI * 2;
 
             var starParticles;
             var raycaster;
             var PARTICLE_SIZE = 20;
+
+            var particles, sprite;
 
             var earthMaterial, earthMesh;
 
@@ -112,15 +106,18 @@
                 container = document.getElementById( 'container' );
 
                 camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-                camera.position.z = 250;
+                camera.position.z = 60;
+                camera.position.y = 10;
 
                 scene = new THREE.Scene();
+                scene.fog = new THREE.FogExp2( 0xffffff, 0.00008 );
 
                 group = new THREE.Group();
                 scene.add(group);
 
                 //LIGHT -----------------------------------
-                sunLight.position.set(0.7, 6, 4 );
+                //sunLight.position.set(0.7, 6, 4 );
+                sunLight.position.set(0, 50, 10);
                 sunLight.lookAt( scene.position );
                 scene.add( sunLight );
 
@@ -135,51 +132,50 @@
                 earthGeometry.receiveShadow = false;
 
                 earthMaterial = new THREE.MeshPhongMaterial({
-                    map: THREE.ImageUtils.loadTexture('images/nasa4.jpg'),
-                    //color: 0xff00bb,
-                    overdraw: 0.5
-                    //bumpMap: THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
-                    //bumpScale: 0.5,
-                    //specularMap: THREE.ImageUtils.loadTexture('images/earthspec1k.jpg'),
-                    //specular: new THREE.Color('grey')
+                    map: THREE.ImageUtils.loadTexture('images/nasa.jpg'),
+                    //color: 0x99ccff,
+                    overdraw: 0.5,
+                    bumpMap: THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
+                    bumpScale: 0.5,
+                    specularMap: THREE.ImageUtils.loadTexture('images/earthspec1k.jpg'),
+                    specular: new THREE.Color('black')
                 });
                 earthMesh = new THREE.Mesh( earthGeometry, earthMaterial );
-                scene.add ( earthMesh );
+                group.add ( earthMesh );
 
-                //PARTICLES -----------------------------------------------
-                var starGeometry = new THREE.SphereGeometry( 200, 200, 16, 16 );
-                var vertices = starGeometry.vertices;
+               
+                //Background PARTICLES ----------------------------------------------- Kan förenklas
+                var starPositions = new Float32Array(1000 * 3);
+                var starColors = new Float32Array(1000 * 3);
+                var starSizes = new Float32Array(1000 * 3);
 
-                var starPositions = new Float32Array( vertices.length * 3 );
-                var starColors = new Float32Array( vertices.length * 3 );
-                var starSizes = new Float32Array( vertices.length );
-
-                var vertex;
                 var starColor = new THREE.Color();
 
+                for ( var i = 0; i < 1000; i ++ ) {
 
-                for ( var i = 0, l = vertices.length; i < l; i ++ ) {
+                    var vertex = new THREE.Vector3();
 
-                    vertex = vertices[ i ];
+                    vertex.x = Math.random() * 1000 - 500;
+                    vertex.y = Math.random() * 1000 - 500;
+                    vertex.z = Math.random() * 1000 - 500;
+                   
                     vertex.toArray( starPositions, i * 3 );
 
-                    starColor.setHSL( 0.01 + 0.1 * ( i / l ), 1.0, 0.5 )
+                    starColor.setHSL( 255, 255, 255 )
                     starColor.toArray( starColors, i * 3 );
 
-                    starSizes[ i ] = PARTICLE_SIZE * 0.5;
+                    starSizes[ i ] = PARTICLE_SIZE * 0.4;
                 }
 
-                var stars = new THREE.BufferGeometry();
-                stars.addAttribute( 'position', new THREE.BufferAttribute( starPositions, 3 ) );
-                stars.addAttribute( 'customColor', new THREE.BufferAttribute( starColors, 3 ) );
-                stars.addAttribute( 'size', new THREE.BufferAttribute( starSizes, 1 ) );
-
-            
+                var bStars = new THREE.BufferGeometry();
+                bStars.addAttribute( 'position', new THREE.BufferAttribute( starPositions, 3 ) );
+                bStars.addAttribute( 'customColor', new THREE.BufferAttribute( starColors, 3 ) );
+                bStars.addAttribute( 'size', new THREE.BufferAttribute( starSizes, 1 ) );
 
                 var starMaterial = new THREE.ShaderMaterial( {
                     uniforms: {
                         color:   { type: "c", value: new THREE.Color( 0xffffff ) },
-                        texture: { type: "t", value: new THREE.TextureLoader().load( "textures/disc.png" ) }
+                        texture: { type: "t", value: new THREE.TextureLoader().load( "images/particle2.png" ) }
                     },
                     vertexShader: document.getElementById( 'vertexshader' ).textContent,
                     fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
@@ -188,11 +184,41 @@
 
                 } );
 
+                particles = new THREE.Points( bStars, starMaterial );
+                group.add( particles );
 
-                particles = new THREE.Points( stars, starMaterial );
-                scene.add( particles );
 
+                //--------------------- PARTICLES CLOSE AND CLICKABLE -------------------------- (make clickable)
+                particles = new THREE.Geometry();
 
+                var textureLoader = new THREE.TextureLoader();
+
+                sprite = textureLoader.load('images/particle2.png');
+                
+
+                for (var i = 0; i < 1000; i++) {
+                    var vertex = new THREE.Vector3();
+
+                    //random * (max - min) + min
+                    vertex.x = Math.random() * 100 - 50;
+                    vertex.y = Math.random() * ( 30 - 20 ) + 20 ;
+                    vertex.z = Math.random() * 100 - 50;
+
+                    particles.vertices.push( vertex );
+                }
+
+                var particleMaterial = new THREE.PointsMaterial({ 
+                    size: 3, 
+                    map: sprite, 
+                    blending: THREE.AdditiveBlending, 
+                    depthtest: false, 
+                    transparent: true 
+                });
+
+                particleMaterial.color.setHSL( 255, 255, 255 );
+
+                var particleMesh = new THREE.Points( particles, particleMaterial );
+                scene.add( particleMesh );
 
 
 
@@ -250,11 +276,11 @@
 
             function render() {
 
-                particles.rotation.x += 0.0005;
-                particles.rotation.y += 0.001;
+                //particles.rotation.x += 0.0005;
+                //particles.rotation.y += 0.001;
 
-                camera.position.x += ( mouseX - camera.position.x ) * 0.095;
-                camera.position.y += ( - mouseY - camera.position.y ) * 0.095;
+                camera.position.x += ( mouseX - camera.position.x ) * 0.0001;
+                //camera.position.y += ( - mouseY - camera.position.y ) * 0.0095;
 
                 camera.lookAt( scene.position );
 
