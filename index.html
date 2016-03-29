@@ -6,12 +6,12 @@
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
             body {
-                color: #000000;
+                color: #ffffff;
                 font-family:Monospace;
                 font-size:13px;
                 text-align:center;
 
-                background-color: #000000;
+                background-color: #ffffff;
                 margin: 0px;
                 overflow: hidden;
             }
@@ -85,6 +85,7 @@
             var particle;
 
             var clock = new THREE.Clock();
+
             var sunLight = new THREE.DirectionalLight( 'rgb(255,255,255)', 1.5 );
             var useDirectionalLight = true;
             var NormalVector = new THREE.Vector3( 0, 1, 0 );
@@ -94,9 +95,19 @@
             var raycaster;
             var PARTICLE_SIZE = 20;
 
-            var particles, sprite;
+            var particles2, sprite, particleMesh, mouse;
+            var containerWidth;
+            var containerHeight;
+
+
+            //var mouseVector, projector, constrols;
+
+            var objects = [];
+            var particleMaterial, mouse, circle;
 
             var earthMaterial, earthMesh;
+
+            var INTERSECTED;
 
             init();
             animate();
@@ -105,21 +116,34 @@
 
                 container = document.getElementById( 'container' );
 
+                //TEXT
+                var info = document.createElement( 'div' );
+                info.style.position = 'absolute';
+                info.style.top = '30px';
+                info.style.width = '100%';
+                info.style.textAlign = 'center';
+                //info.style.fontsize = '20px';
+                info.style.color = 'white';
+                info.innerHTML = 'integreramera';
+                container.appendChild( info );
+
+
                 camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-                camera.position.z = 60;
-                camera.position.y = 10;
+                camera.position.z = 12;
+                camera.position.y = 0;
+                camera.rotation.x = 40;
 
                 scene = new THREE.Scene();
-                scene.fog = new THREE.FogExp2( 0xffffff, 0.00008 );
+                scene.fog = new THREE.FogExp2( 0xffffff, 0.008 );
 
                 group = new THREE.Group();
                 scene.add(group);
 
                 //LIGHT -----------------------------------
                 //sunLight.position.set(0.7, 6, 4 );
-                sunLight.position.set(0, 50, 10);
+                sunLight.position.set(0, 110, -40);
                 sunLight.lookAt( scene.position );
-                scene.add( sunLight );
+                group.add( sunLight );
 
                 lightPosition4D.x = sunLight.position.x;
                 lightPosition4D.y = sunLight.position.y;
@@ -127,7 +151,7 @@
                 lightPosition4D.w = 0.001; // must be slighty greater than 0, due causing matrixinverse errors
 
                 //EARTH ------------------------------------------------
-                var earthGeometry = new THREE.SphereGeometry(20, 20, 20);
+                var earthGeometry = new THREE.SphereGeometry(10, 50, 50);
                 earthGeometry.castShadow = true;
                 earthGeometry.receiveShadow = false;
 
@@ -141,8 +165,13 @@
                     specular: new THREE.Color('black')
                 });
                 earthMesh = new THREE.Mesh( earthGeometry, earthMaterial );
+                earthMesh.position.y = -11;
+
                 group.add ( earthMesh );
 
+                //TEXT ------------------------------------------------
+                // var text = new THREE.TextGeometry('hej', font: "helvetiker" , size: 5);
+                // scene.add(text);
                
                 //Background PARTICLES ----------------------------------------------- Kan förenklas
                 var starPositions = new Float32Array(1000 * 3);
@@ -189,37 +218,75 @@
 
 
                 //--------------------- PARTICLES CLOSE AND CLICKABLE -------------------------- (make clickable)
-                particles = new THREE.Geometry();
+                // particles2 = new THREE.Geometry();
+                // var textureLoader = new THREE.TextureLoader();
+                // sprite = textureLoader.load('textures/disc2.png');
 
-                var textureLoader = new THREE.TextureLoader();
+                // for (var i = 0; i < 60; i++) {
+                //     var vertex = new THREE.Vector3();
 
-                sprite = textureLoader.load('images/particle2.png');
-                
+                //     //random * (max - min) + min
+                //     vertex.x = Math.random() * 200 - 100;
+                //     vertex.y = Math.random() * ( 20 - 1 ) + 1 ;
+                //     //vertex.z = Math.random() * (-100 + 50 ) - 50;
+                //     vertex.z = -100;
 
-                for (var i = 0; i < 1000; i++) {
-                    var vertex = new THREE.Vector3();
+                //     particles2.vertices.push( vertex );
+                // }
 
-                    //random * (max - min) + min
-                    vertex.x = Math.random() * 100 - 50;
-                    vertex.y = Math.random() * ( 30 - 20 ) + 20 ;
-                    vertex.z = Math.random() * 100 - 50;
+                // particleMaterial = new THREE.PointsMaterial({ 
+                //     size: 5, 
+                //     map: sprite, 
+                //     blending: THREE.AdditiveBlending, 
+                //     depthtest: false, 
+                //     transparent: true 
+                // });
 
-                    particles.vertices.push( vertex );
+                // particleMaterial.color.setHSL( 153, 204, 255 );
+
+                // particleMesh = new THREE.Points( particles2, particleMaterial );
+                // group.add( particleMesh );
+
+
+                //CLICKABLE PARTICLES ------------------------
+
+                var geometry2 = new THREE.BoxGeometry( 20, 20, 20 );
+
+                for (var i = 0; i < 10; i++ ) {
+                    var object = new THREE.Mesh( geometry2, new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, opacity: 0.5 } ) );
+
+                    object.position.x = Math.random() * 200 - 100;
+                    object.position.y = Math.random() * ( 50 - 1 ) + 1 ;
+                    object.position.z = -200;
+
+                    scene.add( object );
+                    objects.push( object );
                 }
 
-                var particleMaterial = new THREE.PointsMaterial({ 
-                    size: 3, 
-                    map: sprite, 
-                    blending: THREE.AdditiveBlending, 
-                    depthtest: false, 
-                    transparent: true 
+                var PI2 = Math.PI * 2;
+                particleMaterial = new THREE.PointsMaterial( {
+                    color: 0x000000,
+                    program: function ( context ) {
+                        context.beginPath();
+                        context.arc( 0, 0, 0.5, 0, PI2, true );
+                        context.fill();
+                    }
                 });
 
-                particleMaterial.color.setHSL( 255, 255, 255 );
+                raycaster = new THREE.Raycaster();
+                mouse = new THREE.Vector2();
 
-                var particleMesh = new THREE.Points( particles, particleMaterial );
-                scene.add( particleMesh );
 
+                //CIRCLE
+                var material = new THREE.MeshBasicMaterial({
+                    color: 0xffffcc
+                });
+
+                var circleGeometry = new THREE.CircleGeometry( 2.3, 32 );
+                circle = new THREE.Mesh( circleGeometry, material );
+                circle.position.z = 0;
+                circle.visible = false;
+                scene.add( circle );
 
 
                 //RENDERING------------------
@@ -236,24 +303,56 @@
 
                 raycaster = new THREE.Raycaster();
 
+                mouse = new THREE.Vector2();
+
                 stats = new Stats();
                 stats.domElement.style.position = 'absolute';
                 stats.domElement.style.top = '0px';
                 container.appendChild( stats.domElement );
 
-                document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+                document.addEventListener('mousedown', onDocumentMouseDown, false);
+                document.addEventListener('touchstart', onDocumentTouchStart, false);
+
+                //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
                 window.addEventListener( 'resize', onWindowResize, false );
 
             }
 
-            function onDocumentMouseMove( event ) {
-
+            //CLICKABLE
+            function onDocumentTouchStart (event) {
                 event.preventDefault();
-                
-                mouseX = ( 0.5*event.clientX - 0.5*(window.innerWidth / 2) );
-                mouseY = ( 0.5*event.clientY - 0.5*(window.innerWidth / 2) );
 
+                event.clientX = event.touches[0].clientX;
+                event.clientY = event.touches[0].clientY;
+
+                onDocumentMouseDown( event );
             }
+
+            function onDocumentMouseDown( event ) {
+                event.preventDefault();
+
+                mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+                mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+                raycaster.setFromCamera( mouse, camera );
+
+                var intersectParticle = raycaster.intersectObjects( objects );
+                var intersectCircle = raycaster.intersectObject( circle ); 
+
+                if ( intersectParticle.length > 0 ) {
+                    intersectParticle[ 0 ].object.material.color.setHex( Math.random()* 3 * 0xffaabb);//0xffffff );
+
+                    circle.visible = true;
+
+
+
+                }
+
+                if ( intersectCircle.length > 0 ) {
+                    circle.visible = false;
+                }
+            }            
+
 
             function onWindowResize() {
                 camera.aspect = window.innerWidth / window.innerHeight;
@@ -267,30 +366,45 @@
 
                 requestAnimationFrame( animate );
 
-                timeFrame = clock.getDelta(); 
+
+                if (circle.radius < 60) { //circle.visible == true && 
+                    circle.scale.radius += 0.2;
+                    //circle.scale.x += 2;
+                }
+
+                //timeFrame = clock.getDelta(); 
 
                 render();
                 stats.update();
 
             }
 
+
             function render() {
 
                 //particles.rotation.x += 0.0005;
                 //particles.rotation.y += 0.001;
 
-                camera.position.x += ( mouseX - camera.position.x ) * 0.0001;
-                //camera.position.y += ( - mouseY - camera.position.y ) * 0.0095;
+                earthMesh.rotation.z += ( mouseX - camera.position.x ) * 0.000001;
 
                 camera.lookAt( scene.position );
+
+
+
+                // SLUTADE HÄR ???????????????????????
+                if (circle.visible == true && circle.radius < 6) {
+                    circle.scale.radius += 2;
+                    //circle.scale.x += 2;
+                }
+
+                //particleMesh.position.x += 0.0005;
+                //particleMesh.position.z += 0.0005;
+                //camera.position.x += ( mouseX - camera.position.x ) * 0.01;
+                //camera.position.y += ( mouseY - camera.position.y ) * 0.095;
 
                 //group.rotation.y -= 0.005;
 
                 renderer.render( scene, camera );
-                //requestAnimationFrame( render );
-
-                renderer.render( scene, camera );
-
             }
 
         </script>
