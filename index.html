@@ -4,31 +4,47 @@
         <title>integrera mera</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <style>
-            body {
-                color: #ffffff;
-                font-family:Monospace;
-                font-size:13px;
-                text-align:center;
-
-                background-color: #ffffff;
-                margin: 0px;
-                overflow: hidden;
-            }
-        </style>
+        <link rel="stylesheet" href="styles/styles.css">
     </head>
 
     <body>
-        <div id="container"></div>
-        <div id="info"><a href="http://threejs.org" target="_blank">three.js</a> webgl - interactive - particles</div>
+        <div id="container">
+            <div class="BackgroundMenu">hej</div>
+            <div id="header">
+                <h3>integreramera</h3>
+            </div>
+
+            <div class="AddParticleBox"> 
+                <p>Share an experience!</p>
+            </div>
+
+            <!-- Menu -->
+            <div class="contentBox"> 
+                <div class="contentText">
+                    <h4>WELCOME TO</h4>
+                    <h2>INTEGRERAMERA</h2>
+                    <hr>
+                    <!-- <hr> -->
+                    <p>See how the world can be changed. We just have to adjust and be acceptable. Please help us in this journey to make the earth a more livable place. Join us, erase the racism and bring love and happiness. bla bla bla bla bla bla bla ba bla bla bla bla bla bla bla blabla bla bla bla bla bla bla blabla bla bla blabla bla bla blabla bla bla bla bla</p>
+
+                    <h1 id="start">START</h1>
+                </div>
+            </div>
+
+        </div>
+        <!-- <div id="info"><a href="http://threejs.org" target="_blank">three.js</a> webgl - interactive - particles</div> -->
+
+
 
         <script src="js/three.min.js"></script>
         <script src="js/Detector.js"></script>
-        <script src="js/renderers/CanvasRenderer.js"></script>
+        <!-- <script src="js/renderers/CanvasRenderer.js"></script> -->
         <script src="js/renderers/Projector.js"></script>
         <script src="js/libs/stats.min.js"></script>
-        <script src="js/objects/ShadowMesh.js"></script>
+        <!-- <script src="js/objects/ShadowMesh.js"></script> -->
          <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+
+         <!-- <script src="bower_components/jquery/dist/jquery.min.js"></script> -->
 
         <!--SHADERS-->
 
@@ -103,7 +119,7 @@
             //var mouseVector, projector, constrols;
 
             var objects = [];
-            var particleMaterial, mouse, circle;
+            var particleMaterial, mouse, circle, object, geometry2, boxMesh;
 
             var earthMaterial, earthMesh;
 
@@ -117,62 +133,79 @@
                 container = document.getElementById( 'container' );
 
                 //TEXT
-                var info = document.createElement( 'div' );
-                info.style.position = 'absolute';
-                info.style.top = '30px';
-                info.style.width = '100%';
-                info.style.textAlign = 'center';
-                //info.style.fontsize = '20px';
-                info.style.color = 'white';
-                info.innerHTML = 'integreramera';
-                container.appendChild( info );
+                // var info = document.createElement( 'div' );
+                // info.style.position = 'absolute';
+                // info.style.top = '30px';
+                // info.style.width = '100%';
+                // info.style.textAlign = 'center';
+                // //info.style.fontsize = '20px';
+                // info.style.color = 'grey';
+                // info.innerHTML = 'integreramera';
+                // container.appendChild( info );
 
 
                 camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-                camera.position.z = 12;
+                camera.position.z = 100;
                 camera.position.y = 0;
                 camera.rotation.x = 40;
 
                 scene = new THREE.Scene();
-                scene.fog = new THREE.FogExp2( 0xffffff, 0.008 );
+                scene.fog = new THREE.FogExp2( 0xffffff, 0.005 );
 
                 group = new THREE.Group();
                 scene.add(group);
 
                 //LIGHT -----------------------------------
                 //sunLight.position.set(0.7, 6, 4 );
-                sunLight.position.set(0, 110, -40);
-                sunLight.lookAt( scene.position );
-                group.add( sunLight );
+                // sunLight.position.set(0, 110, -40);
+                // sunLight.lookAt( scene.position );
+                // group.add( sunLight );
 
-                lightPosition4D.x = sunLight.position.x;
-                lightPosition4D.y = sunLight.position.y;
-                lightPosition4D.z = sunLight.position.z;
-                lightPosition4D.w = 0.001; // must be slighty greater than 0, due causing matrixinverse errors
+                // lightPosition4D.x = sunLight.position.x;
+                // lightPosition4D.y = sunLight.position.y;
+                // lightPosition4D.z = sunLight.position.z;
+                // lightPosition4D.w = 0.001; // must be slighty greater than 0, due causing matrixinverse errors
+
+                var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+                scene.add( light );
+
+                //ADD PARTICLE -----------------------------------------
+                // var boxGeometry = new THREE.BoxGeometry(20, 10, 10);
+                // var boxMaterial = new THREE.MeshBasicMaterial( { color: 0xff99cc } );
+                // boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+
+                // boxMesh.position.x = -60;
+                // boxMesh.position.y = 30;
+                // scene.add(boxMesh);
+
 
                 //EARTH ------------------------------------------------
                 var earthGeometry = new THREE.SphereGeometry(10, 50, 50);
-                earthGeometry.castShadow = true;
-                earthGeometry.receiveShadow = false;
+                //earthGeometry.castShadow = true;
+                //earthGeometry.receiveShadow = false;
 
                 earthMaterial = new THREE.MeshPhongMaterial({
-                    map: THREE.ImageUtils.loadTexture('images/nasa.jpg'),
+                    map: THREE.ImageUtils.loadTexture('images/varmpink.png'),
+                    fog: true
                     //color: 0x99ccff,
-                    overdraw: 0.5,
-                    bumpMap: THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
-                    bumpScale: 0.5,
-                    specularMap: THREE.ImageUtils.loadTexture('images/earthspec1k.jpg'),
-                    specular: new THREE.Color('black')
+                    // overdraw: 0.5,
+                    // bumpMap: THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
+                    // bumpScale: 0.5,
+                    // specularMap: THREE.ImageUtils.loadTexture('images/earthspec1k.jpg'),
+                    // specular: new THREE.Color('black')
                 });
+
+                //earthMaterial.fog = new THREE.FogExp2( 0xffffff, 0.1 );
+                //scene.fog = new THREE.FogExp2( 0xffffff, 0.001 );
+
                 earthMesh = new THREE.Mesh( earthGeometry, earthMaterial );
-                earthMesh.position.y = -11;
+                earthMesh.position.y = -18;
 
                 group.add ( earthMesh );
 
-                //TEXT ------------------------------------------------
-                // var text = new THREE.TextGeometry('hej', font: "helvetiker" , size: 5);
-                // scene.add(text);
-               
+                 $( ".contentBox" ).fadeIn(2000);
+                 $( ".BackgroundMenu" ).fadeIn(3000);
+
                 //Background PARTICLES ----------------------------------------------- Kan förenklas
                 var starPositions = new Float32Array(1000 * 3);
                 var starColors = new Float32Array(1000 * 3);
@@ -214,58 +247,20 @@
                 } );
 
                 particles = new THREE.Points( bStars, starMaterial );
-                group.add( particles );
-
-
-                //--------------------- PARTICLES CLOSE AND CLICKABLE -------------------------- (make clickable)
-                // particles2 = new THREE.Geometry();
-                // var textureLoader = new THREE.TextureLoader();
-                // sprite = textureLoader.load('textures/disc2.png');
-
-                // for (var i = 0; i < 60; i++) {
-                //     var vertex = new THREE.Vector3();
-
-                //     //random * (max - min) + min
-                //     vertex.x = Math.random() * 200 - 100;
-                //     vertex.y = Math.random() * ( 20 - 1 ) + 1 ;
-                //     //vertex.z = Math.random() * (-100 + 50 ) - 50;
-                //     vertex.z = -100;
-
-                //     particles2.vertices.push( vertex );
-                // }
-
-                // particleMaterial = new THREE.PointsMaterial({ 
-                //     size: 5, 
-                //     map: sprite, 
-                //     blending: THREE.AdditiveBlending, 
-                //     depthtest: false, 
-                //     transparent: true 
-                // });
-
-                // particleMaterial.color.setHSL( 153, 204, 255 );
-
-                // particleMesh = new THREE.Points( particles2, particleMaterial );
-                // group.add( particleMesh );
+                //group.add( particles ); //Tillfälligt borttaget
 
 
                 //CLICKABLE PARTICLES ------------------------
-
-                var geometry2 = new THREE.BoxGeometry( 20, 20, 20 );
-
-                for (var i = 0; i < 10; i++ ) {
-                    var object = new THREE.Mesh( geometry2, new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, opacity: 0.5 } ) );
-
-                    object.position.x = Math.random() * 200 - 100;
-                    object.position.y = Math.random() * ( 50 - 1 ) + 1 ;
-                    object.position.z = -200;
-
-                    scene.add( object );
-                    objects.push( object );
+                geometry2 = new THREE.CircleGeometry(0.6, 32);//( 0.4, 32 );
+ 
+                for (var i = 0; i < 100; i++ ) {
+                    addOneParticle();
                 }
 
                 var PI2 = Math.PI * 2;
                 particleMaterial = new THREE.PointsMaterial( {
                     color: 0x000000,
+                    //fog: true,
                     program: function ( context ) {
                         context.beginPath();
                         context.arc( 0, 0, 0.5, 0, PI2, true );
@@ -273,32 +268,34 @@
                     }
                 });
 
+                objects.fog = new THREE.FogExp2( 0xffffff, 0.001 );
+
                 raycaster = new THREE.Raycaster();
                 mouse = new THREE.Vector2();
 
-
-                //CIRCLE
+                //--------------CIRCLE
                 var material = new THREE.MeshBasicMaterial({
                     color: 0xffffcc
                 });
 
-                var circleGeometry = new THREE.CircleGeometry( 2.3, 32 );
+                var circleGeometry = new THREE.CircleGeometry( 20, 32 );
                 circle = new THREE.Mesh( circleGeometry, material );
-                circle.position.z = 0;
+                circle.position.z = 20;
                 circle.visible = false;
                 scene.add( circle );
 
 
                 //RENDERING------------------
                 renderer = new THREE.WebGLRenderer();
-                renderer.setClearColor( 'rgb(0,0,0)' );
+                renderer.setClearColor( 'rgb(255, 255, 255)' );
                 renderer.setPixelRatio( window.devicePixelRatio );
                 renderer.setSize ( window.innerWidth, window.innerHeight );
+                //renderer.setSize ( window.innerWidth, window.innerHeight*0.8 );
                 document.getElementById( "container" ).appendChild( renderer.domElement );
                 window.addEventListener( 'resize' , onWindowResize, false );
 
-                renderer.shadowMap.enabled = true;
-                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                //renderer.shadowMap.enabled = true;
+                //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 renderer.sortObjects = false;
 
                 raycaster = new THREE.Raycaster();
@@ -310,12 +307,31 @@
                 stats.domElement.style.top = '0px';
                 container.appendChild( stats.domElement );
 
+
                 document.addEventListener('mousedown', onDocumentMouseDown, false);
                 document.addEventListener('touchstart', onDocumentTouchStart, false);
 
-                //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+                document.addEventListener( 'mousemove', onDocumentMouseMove, false );
                 window.addEventListener( 'resize', onWindowResize, false );
 
+            }
+
+            function addOneParticle () {
+                object = new THREE.Mesh( geometry2, new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, opacity: 0.5 } ) );
+
+                //random * (max - min) + min
+                //böjd linje
+                object.position.x = Math.random() * (22 - (-22) ) + (-22);
+                object.position.y = - 0.02 * Math.pow(object.position.x, 2) + ( Math.random() * (11 - (-2) ) + (-2) ) ;
+                object.position.z = Math.random() * (20 - (-20) + (-20) );
+
+                //CIRKEL
+                // object.position.x = Math.random() * (122 - (-122) ) + (-122);
+                // object.position.y = Math.sqrt( Math.pow(20, 2) - Math.pow(object.position.x, 2) );
+                // object.position.z = Math.random() * (20 - (-20) + (-20) );
+
+                scene.add( object );
+                objects.push( object ); 
             }
 
             //CLICKABLE
@@ -338,20 +354,40 @@
 
                 var intersectParticle = raycaster.intersectObjects( objects );
                 var intersectCircle = raycaster.intersectObject( circle ); 
+                var intersectAddParticle = raycaster.intersectObject( boxMesh );
 
                 if ( intersectParticle.length > 0 ) {
                     intersectParticle[ 0 ].object.material.color.setHex( Math.random()* 3 * 0xffaabb);//0xffffff );
 
                     circle.visible = true;
 
+                    console.log("Circle visible");
 
+                    circle.position.x = intersectParticle.position.x;
+                    circle.position.y = intersectParticle.position.y;
+                    circle.position.z = intersectParticle.position.z;
 
+                    $( circle ).fadeIn(1000);
+                    // $( circle ).effect( "size", { to: { radius: 30 } }, 1000 );
                 }
 
                 if ( intersectCircle.length > 0 ) {
                     circle.visible = false;
                 }
-            }            
+
+
+                if ( intersectAddParticle.length > 0 ) {
+                    addOneParticle();
+                }
+            } 
+
+            function onDocumentMouseMove( event ) {
+
+                event.preventDefault();
+                
+                mouseX = ( 0.5*event.clientX - 0.5*(window.innerWidth / 2) );
+                mouseY = ( 0.5*event.clientY - 0.5*(window.innerWidth / 2) );
+            }           
 
 
             function onWindowResize() {
@@ -373,7 +409,6 @@
                 }
 
                 //timeFrame = clock.getDelta(); 
-
                 render();
                 stats.update();
 
@@ -382,33 +417,79 @@
 
             function render() {
 
-                //particles.rotation.x += 0.0005;
-                //particles.rotation.y += 0.001;
+                //Movement for particles
+                for (var i = 0; i < objects.length; i++ ) {
+                    objects[ i ].position.x -= Math.random() * 0.001;
+                    objects[ i ].position.y -= Math.random() * 0.001;
+                }
 
+                //Movement earth
+                earthMesh.rotation.y += 0.001;
                 earthMesh.rotation.z += ( mouseX - camera.position.x ) * 0.000001;
 
                 camera.lookAt( scene.position );
 
-
-
                 // SLUTADE HÄR ???????????????????????
-                if (circle.visible == true && circle.radius < 6) {
+                if (circle.visible == true && circle.radius < 20) {
                     circle.scale.radius += 2;
                     //circle.scale.x += 2;
                 }
 
-                //particleMesh.position.x += 0.0005;
-                //particleMesh.position.z += 0.0005;
-                //camera.position.x += ( mouseX - camera.position.x ) * 0.01;
-                //camera.position.y += ( mouseY - camera.position.y ) * 0.095;
+                camera.rotation.y -= ( mouseX - camera.position.x ) * 0.0001;
+                camera.rotation.x -=  ( mouseY - camera.position.y ) * 0.0001;
 
                 //group.rotation.y -= 0.005;
+                //circle.geometry.verticesNeedUpdate = true;
+
+                //only show some particles fungerar ej
+                // for (var i = 0; i < objects.length; i++) {
+
+                //     var distance1 = new THREE.Vector3(objects[i].position.x, objects[i].position.y, objects[i].position.z );
+                //     var distance2 = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z );
+
+                //     if ( distance1.distanceTo( distance2 ) < 10 || distance1.distanceTo( distance2 ) > 10 ) 
+                //         objects[i].visible = false;
+                    
+                //     else 
+                //         objects[i].visible = true;
+                // }
+
+
+
+                //JAVASCRIPT
+
+                $( ".AddParticleBox" ).click( function() {
+                    addOneParticle();
+                });
+
+
+                //Fade out menu
+                $( "#start" ).click( function() {
+                    $( ".contentBox" ).fadeOut(1000);//"linear");
+                    $( ".BackgroundMenu" ).fadeOut(1500);
+                });
+
 
                 renderer.render( scene, camera );
             }
+
 
         </script>
 
     </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
