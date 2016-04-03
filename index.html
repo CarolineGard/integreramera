@@ -9,7 +9,10 @@
 
     <body>
         <div id="container">
-            <div class="BackgroundMenu">hej</div>
+            
+            <div class="BackgroundMenu"></div>
+            <div class="BackgroundAddParticle"></div>
+
             <div id="header">
                 <h3>integreramera</h3>
             </div>
@@ -31,18 +34,50 @@
                 </div>
             </div>
 
-        </div>
-        <!-- <div id="info"><a href="http://threejs.org" target="_blank">three.js</a> webgl - interactive - particles</div> -->
 
+            <!-- Form Add an Experience -->
+            <div class="addParticleForm2">
+                <h1>Add Your Own Experience</h1>
+
+                <form action="submit" method="POST">
+                    <label> Category </label>
+                    <input name="category"/>
+                    <label> Country </label>
+                    <input name="country"/>
+                    <label> Text </label>
+                    <input name="thetext"/>
+                    <br>
+                    <button type="submit" id="btn-submit">Create</button>
+
+                </form>
+            </div>
+
+        </div>
 
 
         <script src="js/three.min.js"></script>
         <script src="js/Detector.js"></script>
-        <!-- <script src="js/renderers/CanvasRenderer.js"></script> -->
         <script src="js/renderers/Projector.js"></script>
         <script src="js/libs/stats.min.js"></script>
+        <script src="js/libs/dat.gui.min.js"></script>
         <!-- <script src="js/objects/ShadowMesh.js"></script> -->
          <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+
+        <script src="js/shaders/CopyShader.js"></script>
+        <script src="js/shaders/DotScreenShader.js"></script>
+        <script src="js/shaders/RGBShiftShader.js"></script>
+        <script src="js/shaders/ColorCorrectionShader.js"></script> 
+        <script src="js/shaders/DotScreenShader.js"></script> 
+        <script src="js/shaders/VignetteShader.js"></script> 
+        <script src="js/shaders/ColorifyShader.js"></script> 
+        <script src="js/shaders/FocusShader.js"></script> 
+
+        <script src="js/postprocessing/EffectComposer.js"></script>
+        <script src="js/postprocessing/RenderPass.js"></script>
+        <script src="js/postprocessing/MaskPass.js"></script>
+        <script src="js/postprocessing/ShaderPass.js"></script>
+        <script src="js/postprocessing/DotScreenPass.js"></script>  
+        <script src="js/postprocessing/BloomPass.js"></script>  
 
          <!-- <script src="bower_components/jquery/dist/jquery.min.js"></script> -->
 
@@ -66,7 +101,6 @@
                 gl_PointSize = size * ( 300.0 / -mvPosition.z );
 
                 gl_Position = projectionMatrix * mvPosition;
-
             }
 
         </script>
@@ -115,15 +149,14 @@
             var containerWidth;
             var containerHeight;
 
-
-            //var mouseVector, projector, constrols;
-
             var objects = [];
             var particleMaterial, mouse, circle, object, geometry2, boxMesh;
 
             var earthMaterial, earthMesh;
 
             var INTERSECTED;
+
+            var composer;
 
             init();
             animate();
@@ -150,12 +183,38 @@
                 camera.rotation.x = 40;
 
                 scene = new THREE.Scene();
-                scene.fog = new THREE.FogExp2( 0xffffff, 0.005 );
+                //scene.fog = new THREE.FogExp2( 0xffffff, 0.005 );
+                //scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
                 group = new THREE.Group();
                 scene.add(group);
 
                 //LIGHT -----------------------------------
+                light = new THREE.DirectionalLight( 0xffffff );
+                light.position.set( 0, 1, 40 );
+                light.castShadow = false;
+                light.shadowDarkness = 0;
+
+                scene.add( light );
+
+                light = new THREE.DirectionalLight( 0xffffff );
+                light.position.set( 0, -2, -0.5 );
+                light.intensity = 5.0;
+                light.shadowDarkness = 0;
+                scene.add( light );
+
+
+                light = new THREE.DirectionalLight( 0xffffff );
+                light.position.set( 0, 1, 0 );
+                light.intensity = 0.3;
+                light.shadowDarkness = 0;
+                scene.add( light );
+
+                light = new THREE.AmbientLight( 0x222222 );
+                scene.add( light );
+
+
+
                 //sunLight.position.set(0.7, 6, 4 );
                 // sunLight.position.set(0, 110, -40);
                 // sunLight.lookAt( scene.position );
@@ -166,8 +225,8 @@
                 // lightPosition4D.z = sunLight.position.z;
                 // lightPosition4D.w = 0.001; // must be slighty greater than 0, due causing matrixinverse errors
 
-                var light = new THREE.AmbientLight( 0xffffff ); // soft white light
-                scene.add( light );
+                //var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+                //scene.add( light );
 
                 //ADD PARTICLE -----------------------------------------
                 // var boxGeometry = new THREE.BoxGeometry(20, 10, 10);
@@ -180,13 +239,16 @@
 
 
                 //EARTH ------------------------------------------------
-                var earthGeometry = new THREE.SphereGeometry(10, 50, 50);
+                var earthGeometry = new THREE.SphereGeometry(15, 50, 50);
                 //earthGeometry.castShadow = true;
                 //earthGeometry.receiveShadow = false;
 
                 earthMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
                     map: THREE.ImageUtils.loadTexture('images/varmpink.png'),
-                    fog: true
+                    shading: THREE.SmoothShading, 
+                    shininess: 0
+                    //fog: true
                     //color: 0x99ccff,
                     // overdraw: 0.5,
                     // bumpMap: THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
@@ -203,9 +265,6 @@
 
                 group.add ( earthMesh );
 
-                 $( ".contentBox" ).fadeIn(2000);
-                 $( ".BackgroundMenu" ).fadeIn(3000);
-
                 //Background PARTICLES ----------------------------------------------- Kan förenklas
                 var starPositions = new Float32Array(1000 * 3);
                 var starColors = new Float32Array(1000 * 3);
@@ -213,7 +272,7 @@
 
                 var starColor = new THREE.Color();
 
-                for ( var i = 0; i < 1000; i ++ ) {
+                for ( var i = 0; i < 100; i ++ ) {
 
                     var vertex = new THREE.Vector3();
 
@@ -226,7 +285,7 @@
                     starColor.setHSL( 255, 255, 255 )
                     starColor.toArray( starColors, i * 3 );
 
-                    starSizes[ i ] = PARTICLE_SIZE * 0.4;
+                    starSizes[ i ] = PARTICLE_SIZE * 0.9;
                 }
 
                 var bStars = new THREE.BufferGeometry();
@@ -236,8 +295,9 @@
 
                 var starMaterial = new THREE.ShaderMaterial( {
                     uniforms: {
-                        color:   { type: "c", value: new THREE.Color( 0xffffff ) },
-                        texture: { type: "t", value: new THREE.TextureLoader().load( "images/particle2.png" ) }
+                        color:   { type: "c", value: new THREE.Color( 0x262626 ) },
+                        texture: { type: "t", value: new THREE.TextureLoader().load( "textures/disc3.png" ) },
+                        // fog: true
                     },
                     vertexShader: document.getElementById( 'vertexshader' ).textContent,
                     fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
@@ -250,8 +310,14 @@
                 //group.add( particles ); //Tillfälligt borttaget
 
 
+
+
+
+
+
+
                 //CLICKABLE PARTICLES ------------------------
-                geometry2 = new THREE.CircleGeometry(0.6, 32);//( 0.4, 32 );
+                geometry2 = new THREE.CircleGeometry(0.2, 32);//( 0.4, 32 );
  
                 for (var i = 0; i < 100; i++ ) {
                     addOneParticle();
@@ -260,7 +326,7 @@
                 var PI2 = Math.PI * 2;
                 particleMaterial = new THREE.PointsMaterial( {
                     color: 0x000000,
-                    //fog: true,
+                    //emissive: 0xffffff,
                     program: function ( context ) {
                         context.beginPath();
                         context.arc( 0, 0, 0.5, 0, PI2, true );
@@ -268,12 +334,14 @@
                     }
                 });
 
-                objects.fog = new THREE.FogExp2( 0xffffff, 0.001 );
+                //objects.fog = new THREE.FogExp2( 0xffffff, 0.001 );
 
                 raycaster = new THREE.Raycaster();
                 mouse = new THREE.Vector2();
 
-                //--------------CIRCLE
+
+
+                //--------------CIRCLE --------------
                 var material = new THREE.MeshBasicMaterial({
                     color: 0xffffcc
                 });
@@ -283,6 +351,12 @@
                 circle.position.z = 20;
                 circle.visible = false;
                 scene.add( circle );
+
+
+
+                $( ".contentBox" ).fadeIn(2000);
+                $( ".BackgroundMenu" ).fadeIn(3000);
+
 
 
                 //RENDERING------------------
@@ -296,7 +370,48 @@
 
                 //renderer.shadowMap.enabled = true;
                 //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                //renderer.setClearColor( scene.fog.color );
+
                 renderer.sortObjects = false;
+
+
+
+                //POSTPROCESSING --------------------
+
+                //Effectcomposer to combine miltiple shaders with addPass
+                // composer = new THREE.EffectComposer( renderer );
+                // //Renderpass to render te 3D scene into the effect chain
+                // composer.addPass( new THREE.RenderPass( scene, camera ) );
+
+                // //Dots
+                // //var effect = new THREE.ShaderPass( THREE.DotScreenShader );
+                // //effect.uniforms[ 'scale' ].value = 400;
+                // //composer.addPass( effect );
+
+                // // var effect = new THREE.ShaderPass( THREE.ColorCorrectionShader );
+                // // effect.uniforms[ 'tDiffuse' ].value = 0.002;
+                // // effect.renderToScreen = true;
+                // // composer.addPass( effect );
+
+                // //runt om kanter
+                // // var effect = new THREE.ShaderPass( THREE.VignetteShader );
+                // // effect.uniforms[ 'darkness' ].value = 20;
+                // // effect.renderToScreen = true;
+                // // composer.addPass( effect );
+
+
+                // //Fokus
+                // var effect = new THREE.ShaderPass( THREE.FocusShader );
+                // effect.uniforms[ 'tDiffuse' ].value = 0.1;
+                // // effect.uniforms[ 'screenWidth' ].value = 0.5;
+                // // effect.uniforms[ 'screenHeight' ].value = 0.5;
+                // // effect.uniforms[ 'sampleDistance' ].value = 0.5;
+                // // effect.uniforms[ 'waveFactor' ].value = 0.5;
+                // effect.renderToScreen = true;
+                // composer.addPass( effect );
+
+
+
 
                 raycaster = new THREE.Raycaster();
 
@@ -308,6 +423,44 @@
                 container.appendChild( stats.domElement );
 
 
+
+
+
+                // composer2.addPass( effectDotScreen ); x
+                // composer2.addPass( renderMask );
+                // composer2.addPass( effectColorify1 );
+                // composer2.addPass( clearMask );
+                // composer2.addPass( renderMaskInverse );
+                // composer2.addPass( effectColorify2 );
+                // composer2.addPass( effectVignette );
+
+                // var effectColorify1 = new THREE.ShaderPass( THREE.ColorifyShader );
+                // var effectColorify2 = new THREE.ShaderPass( THREE.ColorifyShader );
+                // effectColorify1.uniforms[ 'color' ].value.setRGB( 1, 0.8, 0.8 );
+                // effectColorify2.uniforms[ 'color' ].value.setRGB( 1, 0.75, 0.5 );
+
+                // var clearMask = new THREE.ClearMaskPass();
+                // var renderMask = new THREE.MaskPass( sceneModel, cameraPerspective );
+                // var renderMaskInverse = new THREE.MaskPass( sceneModel, cameraPerspective );
+
+                // var effectBloom = new THREE.BloomPass( 0.5 );
+                // var effectDotScreen = new THREE.DotScreenPass( new THREE.Vector2( 0, 0 ), 0.5, 0.8 );
+
+
+                // var shaderVignette = THREE.VignetteShader;
+                // var effectVignette = new THREE.ShaderPass( shaderVignette );
+
+
+
+
+
+
+
+
+
+                //----------------------------------
+
+
                 document.addEventListener('mousedown', onDocumentMouseDown, false);
                 document.addEventListener('touchstart', onDocumentTouchStart, false);
 
@@ -317,18 +470,13 @@
             }
 
             function addOneParticle () {
-                object = new THREE.Mesh( geometry2, new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, opacity: 0.5 } ) );
+                object = new THREE.Mesh( geometry2, new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, opacity: 0.2 } ) );
 
                 //random * (max - min) + min
                 //böjd linje
-                object.position.x = Math.random() * (22 - (-22) ) + (-22);
-                object.position.y = - 0.02 * Math.pow(object.position.x, 2) + ( Math.random() * (11 - (-2) ) + (-2) ) ;
+                object.position.x = Math.random() * (24 - (-24) ) + (-24);
+                object.position.y = - 0.02 * Math.pow(object.position.x, 2) + ( Math.random() * (11 - (1) ) + (1) ) ;
                 object.position.z = Math.random() * (20 - (-20) + (-20) );
-
-                //CIRKEL
-                // object.position.x = Math.random() * (122 - (-122) ) + (-122);
-                // object.position.y = Math.sqrt( Math.pow(20, 2) - Math.pow(object.position.x, 2) );
-                // object.position.z = Math.random() * (20 - (-20) + (-20) );
 
                 scene.add( object );
                 objects.push( object ); 
@@ -354,7 +502,6 @@
 
                 var intersectParticle = raycaster.intersectObjects( objects );
                 var intersectCircle = raycaster.intersectObject( circle ); 
-                var intersectAddParticle = raycaster.intersectObject( boxMesh );
 
                 if ( intersectParticle.length > 0 ) {
                     intersectParticle[ 0 ].object.material.color.setHex( Math.random()* 3 * 0xffaabb);//0xffffff );
@@ -367,7 +514,7 @@
                     circle.position.y = intersectParticle.position.y;
                     circle.position.z = intersectParticle.position.z;
 
-                    $( circle ).fadeIn(1000);
+                    $( circle ).fadeIn(500);
                     // $( circle ).effect( "size", { to: { radius: 30 } }, 1000 );
                 }
 
@@ -375,10 +522,6 @@
                     circle.visible = false;
                 }
 
-
-                if ( intersectAddParticle.length > 0 ) {
-                    addOneParticle();
-                }
             } 
 
             function onDocumentMouseMove( event ) {
@@ -395,7 +538,7 @@
                 camera.updateProjectionMatrix();
 
                 renderer.setSize( window.innerWidth, window.innerHeight );
-
+                composer.setSize( window.innerWidth, window.innerHeight );
             }
 
             function animate() {
@@ -419,8 +562,8 @@
 
                 //Movement for particles
                 for (var i = 0; i < objects.length; i++ ) {
-                    objects[ i ].position.x -= Math.random() * 0.001;
-                    objects[ i ].position.y -= Math.random() * 0.001;
+                    objects[ i ].position.x -= Math.random() * (0.01 + 0.01) - 0.01 ;
+                    objects[ i ].position.y -= Math.random() * (0.01 + 0.01) - 0.01 ;
                 }
 
                 //Movement earth
@@ -430,10 +573,10 @@
                 camera.lookAt( scene.position );
 
                 // SLUTADE HÄR ???????????????????????
-                if (circle.visible == true && circle.radius < 20) {
-                    circle.scale.radius += 2;
-                    //circle.scale.x += 2;
-                }
+                // if (circle.visible == true && circle.radius < 20) {
+                //     circle.scale.radius += 2;
+                //     //circle.scale.x += 2;
+                // }
 
                 camera.rotation.y -= ( mouseX - camera.position.x ) * 0.0001;
                 camera.rotation.x -=  ( mouseY - camera.position.y ) * 0.0001;
@@ -459,17 +602,23 @@
                 //JAVASCRIPT
 
                 $( ".AddParticleBox" ).click( function() {
-                    addOneParticle();
+                    $( ".BackgroundMenu" ).fadeIn(1500);
+                    $( ".addParticleForm2" ).fadeIn(2000);
                 });
 
 
                 //Fade out menu
                 $( "#start" ).click( function() {
                     $( ".contentBox" ).fadeOut(1000);//"linear");
-                    $( ".BackgroundMenu" ).fadeOut(1500);
+                    $( ".BackgroundMenu" ).fadeOut(1100);
                 });
 
+                $("#btn-submit").click(function() {
+                    $( ".addParticleForm2" ).fadeOut(1000);
+                    $( ".BackgroundMenu" ).fadeOut(1100); 
+                });
 
+                //composer.render();
                 renderer.render( scene, camera );
             }
 
