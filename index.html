@@ -5,6 +5,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link rel="stylesheet" href="styles/styles.css">
+        <!-- <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'> -->
+
+        <link href='https://fonts.googleapis.com/css?family=Montserrat|Roboto|Slabo+27px|Source+Sans+Pro|Raleway|PT+Sans|Open+Sans+Condensed:300|PT+Sans+Narrow|Noto+Sans|Titillium+Web|Poiret+One|Dosis' rel='stylesheet' type='text/css'>
+
     </head>
 
     <body>
@@ -12,6 +16,15 @@
             
             <div class="BackgroundMenu"></div>
             <div class="BackgroundAddParticle"></div>
+            <div id="clickBox"></div>
+            
+            <div id="starText">
+                <h2 id="theHeadline"></h2>
+                <hr>
+                <p id="theText"></p>
+                <h3 id="theCountry"></h3>
+            </div>
+
 
             <div id="header">
                 <h3>integreramera</h3>
@@ -21,6 +34,7 @@
                 <p>Share an experience!</p>
             </div>
 
+
             <!-- Menu -->
             <div class="contentBox"> 
                 <div class="contentText">
@@ -28,28 +42,35 @@
                     <h2>INTEGRERAMERA</h2>
                     <hr>
                     <!-- <hr> -->
-                    <p>See how the world can be changed. We just have to adjust and be acceptable. Please help us in this journey to make the earth a more livable place. Join us, erase the racism and bring love and happiness. bla bla bla bla bla bla bla ba bla bla bla bla bla bla bla blabla bla bla bla bla bla bla blabla bla bla blabla bla bla blabla bla bla bla bla</p>
+                    <p>See how the world can be changed. We just have to adjust and be acceptable. Please help us in this journey to make the earth a more livable place. Join us, erase the racism and bring love and happiness. bla bla bla bla bla bla bla ba bla bla bla bla bla bla bla blabla bla bla bla bla bla bla blabla bla bla blabla bla bla blabla bla bla bla bla bla bla bla bla b</p>
 
                     <h1 id="start">START</h1>
                 </div>
             </div>
 
-
             <!-- Form Add an Experience -->
-            <div class="addParticleForm2">
-                <h1>Add Your Own Experience</h1>
-
-                <form action="submit" method="POST">
-                    <label> Category </label>
-                    <input name="category"/>
-                    <label> Country </label>
-                    <input name="country"/>
-                    <label> Text </label>
-                    <input name="thetext"/>
+            <div class="addParticleForm">
+                <img src="icons/backwhite.png" alt="back" id="btn-back" style="width:70px; height:70px;">
+                <h2>Add Your Own Experience</h2>
+                <hr>
+                <!-- <form action="submit"> -->
+                    <label> Category </label><br>
+                    <input name="category" type="text" /><br>
+                    <label> Country </label><br>
+                    <input name="theCountry" type="text" /> <br>
+<!--                      <select class="w3-select w3-border" name="option">
+                        <option  value="Sweden">Sweden</option>
+                        <option  value="Denmark">Denmark</option>
+                        <option  value="South Korea">South Korea</option>
+                    </select>  -->
+                    <label> Text </label><br>
+                    <textarea name="theText" type="text" cols="40" rows="6"></textarea>
+                    <!-- <input id="textInput" name="theText" type="text" rows="4"/> -->
                     <br>
-                    <button type="submit" id="btn-submit">Create</button>
+                    <h1 id="create-btn">Create</h1>
+                    <!-- <button type="submit" id="btn-submit">Create</button> -->
 
-                </form>
+                <!-- </form> -->
             </div>
 
         </div>
@@ -60,31 +81,26 @@
         <script src="js/renderers/Projector.js"></script>
         <script src="js/libs/stats.min.js"></script>
         <script src="js/libs/dat.gui.min.js"></script>
-        <!-- <script src="js/objects/ShadowMesh.js"></script> -->
-         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+        <script src='threex.domevents.js'></script>
 
         <script src="js/shaders/CopyShader.js"></script>
-        <script src="js/shaders/DotScreenShader.js"></script>
-        <script src="js/shaders/RGBShiftShader.js"></script>
         <script src="js/shaders/ColorCorrectionShader.js"></script> 
-        <script src="js/shaders/DotScreenShader.js"></script> 
-        <script src="js/shaders/VignetteShader.js"></script> 
-        <script src="js/shaders/ColorifyShader.js"></script> 
         <script src="js/shaders/FocusShader.js"></script> 
+        <script src="js/shaders/FilmShader.js"></script> 
+        <script src="js/shaders/BokehShader.js"></script> 
 
         <script src="js/postprocessing/EffectComposer.js"></script>
         <script src="js/postprocessing/RenderPass.js"></script>
         <script src="js/postprocessing/MaskPass.js"></script>
         <script src="js/postprocessing/ShaderPass.js"></script>
-        <script src="js/postprocessing/DotScreenPass.js"></script>  
-        <script src="js/postprocessing/BloomPass.js"></script>  
+        <script src="js/postprocessing/BokehPass.js"></script> 
 
          <!-- <script src="bower_components/jquery/dist/jquery.min.js"></script> -->
 
         <!--SHADERS-->
 
         <!--Vertex shaders-->
-
         <script type="x-shader/x-vertex" id="vertexshader">
 
             attribute float size;
@@ -157,6 +173,18 @@
             var INTERSECTED;
 
             var composer;
+            var postprocessing = {};
+
+            var colorArray = ['#ff6699', '#ffff66', '#66ff66', '#4db8ff'];
+            var colorArray2 = ['0xff6699', '0xffff66', '0x66ff66', '0x4db8ff'];
+
+            var zoomFactor = 1;
+            var zoomInStop = 8.5;
+            var zoomOutStop = 90;
+
+
+            var starData = [];
+
 
             init();
             animate();
@@ -165,26 +193,15 @@
 
                 container = document.getElementById( 'container' );
 
-                //TEXT
-                // var info = document.createElement( 'div' );
-                // info.style.position = 'absolute';
-                // info.style.top = '30px';
-                // info.style.width = '100%';
-                // info.style.textAlign = 'center';
-                // //info.style.fontsize = '20px';
-                // info.style.color = 'grey';
-                // info.innerHTML = 'integreramera';
-                // container.appendChild( info );
-
-
                 camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-                camera.position.z = 100;
+                //Camera angel z: camera.position.z = 100;
+                camera.position.z = 0;
                 camera.position.y = 0;
                 camera.rotation.x = 40;
 
                 scene = new THREE.Scene();
-                //scene.fog = new THREE.FogExp2( 0xffffff, 0.005 );
-                //scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+                scene.fog = new THREE.FogExp2( 0xffffff, 0.002 );
+                
 
                 group = new THREE.Group();
                 scene.add(group);
@@ -193,8 +210,7 @@
                 light = new THREE.DirectionalLight( 0xffffff );
                 light.position.set( 0, 1, 40 );
                 light.castShadow = false;
-                light.shadowDarkness = 0;
-
+                light.intensity = 0.5;
                 scene.add( light );
 
                 light = new THREE.DirectionalLight( 0xffffff );
@@ -214,28 +230,34 @@
                 scene.add( light );
 
 
+                //Read Json File
+                $.getJSON("data/ExperiencesData.json", function(data) {
+                    starData = data.experiences;
+                    // $( "#starText" ).fadeIn(2000); 
+                    // document.getElementById("theHeadline").innerHTML = starData[6].headline;
+                    // document.getElementById("theText").innerHTML = starData[6].message;
+                    // document.getElementById("theCountry").innerHTML = starData[6].country;
 
-                //sunLight.position.set(0.7, 6, 4 );
-                // sunLight.position.set(0, 110, -40);
-                // sunLight.lookAt( scene.position );
-                // group.add( sunLight );
+                //$( ".AddParticleBox" ).fadeOut(500);
 
-                // lightPosition4D.x = sunLight.position.x;
-                // lightPosition4D.y = sunLight.position.y;
-                // lightPosition4D.z = sunLight.position.z;
-                // lightPosition4D.w = 0.001; // must be slighty greater than 0, due causing matrixinverse errors
 
-                //var light = new THREE.AmbientLight( 0xffffff ); // soft white light
-                //scene.add( light );
+                });
 
-                //ADD PARTICLE -----------------------------------------
-                // var boxGeometry = new THREE.BoxGeometry(20, 10, 10);
-                // var boxMaterial = new THREE.MeshBasicMaterial( { color: 0xff99cc } );
-                // boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
 
-                // boxMesh.position.x = -60;
-                // boxMesh.position.y = 30;
-                // scene.add(boxMesh);
+
+
+
+                    //Depth test
+                    var geometry4 = new THREE.CylinderGeometry( 5, 5, 2000, 32 );
+
+                    var material4 = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+                    var cylinder4 = new THREE.Mesh( geometry4, material4 );
+                    //scene.add( cylinder4 );
+
+                    
+                    cylinder4.position.x = -60;
+                    cylinder4.rotation.x = 90;
+                    cylinder4.rotation.y = 20;
 
 
                 //EARTH ------------------------------------------------
@@ -246,23 +268,21 @@
                 earthMaterial = new THREE.MeshPhongMaterial({
                     color: 0xffffff,
                     map: THREE.ImageUtils.loadTexture('images/varmpink.png'),
-                    shading: THREE.SmoothShading, 
-                    shininess: 0
+                    shading: THREE.SmoothShading,
+                    specular: 0
+
+                    //shininess: 0
                     //fog: true
-                    //color: 0x99ccff,
-                    // overdraw: 0.5,
+                    // color: 0xffffff,
+                    // overdraw: 0.9,
                     // bumpMap: THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
-                    // bumpScale: 0.5,
+                    // bumpScale: 0.1,
                     // specularMap: THREE.ImageUtils.loadTexture('images/earthspec1k.jpg'),
                     // specular: new THREE.Color('black')
                 });
 
-                //earthMaterial.fog = new THREE.FogExp2( 0xffffff, 0.1 );
-                //scene.fog = new THREE.FogExp2( 0xffffff, 0.001 );
-
                 earthMesh = new THREE.Mesh( earthGeometry, earthMaterial );
-                earthMesh.position.y = -18;
-
+                earthMesh.position.y = -21;
                 group.add ( earthMesh );
 
                 //Background PARTICLES ----------------------------------------------- Kan förenklas
@@ -296,28 +316,22 @@
                 var starMaterial = new THREE.ShaderMaterial( {
                     uniforms: {
                         color:   { type: "c", value: new THREE.Color( 0x262626 ) },
-                        texture: { type: "t", value: new THREE.TextureLoader().load( "textures/disc3.png" ) },
-                        // fog: true
+                        texture: { type: "t", value: new THREE.TextureLoader().load( "textures/disc3.png" ) }
                     },
                     vertexShader: document.getElementById( 'vertexshader' ).textContent,
                     fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
 
                     alphaTest: 0.9,
-
                 } );
 
                 particles = new THREE.Points( bStars, starMaterial );
-                //group.add( particles ); //Tillfälligt borttaget
-
-
-
-
+                //scene.add( particles ); //Tillfälligt borttaget
 
 
 
 
                 //CLICKABLE PARTICLES ------------------------
-                geometry2 = new THREE.CircleGeometry(0.2, 32);//( 0.4, 32 );
+                geometry2 = new THREE.CircleGeometry(0.4, 5);//(0.42, 5);//( 0.4, 32 );
  
                 for (var i = 0; i < 100; i++ ) {
                     addOneParticle();
@@ -334,28 +348,21 @@
                     }
                 });
 
-                //objects.fog = new THREE.FogExp2( 0xffffff, 0.001 );
 
                 raycaster = new THREE.Raycaster();
                 mouse = new THREE.Vector2();
 
-
-
-                //--------------CIRCLE --------------
+                //-------------- CLOSE UP STAR --------------
                 var material = new THREE.MeshBasicMaterial({
-                    color: 0xffffcc
+                    color: 0xffffff,
+                    opacity: 0.0
                 });
 
-                var circleGeometry = new THREE.CircleGeometry( 20, 32 );
-                circle = new THREE.Mesh( circleGeometry, material );
-                circle.position.z = 20;
-                circle.visible = false;
-                scene.add( circle );
-
-
-
-                $( ".contentBox" ).fadeIn(2000);
-                $( ".BackgroundMenu" ).fadeIn(3000);
+                var sphereGeometry = new THREE.SphereGeometry( 1, 21, 21 );
+                closeStar = new THREE.Mesh( sphereGeometry, material );
+                closeStar.position.z = -100;
+                closeStar.visible = false;
+                //scene.add( closeStar );
 
 
 
@@ -368,52 +375,14 @@
                 document.getElementById( "container" ).appendChild( renderer.domElement );
                 window.addEventListener( 'resize' , onWindowResize, false );
 
-                //renderer.shadowMap.enabled = true;
-                //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-                //renderer.setClearColor( scene.fog.color );
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                renderer.setClearColor( scene.fog.color );
 
                 renderer.sortObjects = false;
-
-
-
-                //POSTPROCESSING --------------------
-
-                //Effectcomposer to combine miltiple shaders with addPass
-                // composer = new THREE.EffectComposer( renderer );
-                // //Renderpass to render te 3D scene into the effect chain
-                // composer.addPass( new THREE.RenderPass( scene, camera ) );
-
-                // //Dots
-                // //var effect = new THREE.ShaderPass( THREE.DotScreenShader );
-                // //effect.uniforms[ 'scale' ].value = 400;
-                // //composer.addPass( effect );
-
-                // // var effect = new THREE.ShaderPass( THREE.ColorCorrectionShader );
-                // // effect.uniforms[ 'tDiffuse' ].value = 0.002;
-                // // effect.renderToScreen = true;
-                // // composer.addPass( effect );
-
-                // //runt om kanter
-                // // var effect = new THREE.ShaderPass( THREE.VignetteShader );
-                // // effect.uniforms[ 'darkness' ].value = 20;
-                // // effect.renderToScreen = true;
-                // // composer.addPass( effect );
-
-
-                // //Fokus
-                // var effect = new THREE.ShaderPass( THREE.FocusShader );
-                // effect.uniforms[ 'tDiffuse' ].value = 0.1;
-                // // effect.uniforms[ 'screenWidth' ].value = 0.5;
-                // // effect.uniforms[ 'screenHeight' ].value = 0.5;
-                // // effect.uniforms[ 'sampleDistance' ].value = 0.5;
-                // // effect.uniforms[ 'waveFactor' ].value = 0.5;
-                // effect.renderToScreen = true;
-                // composer.addPass( effect );
-
-
-
-
-                raycaster = new THREE.Raycaster();
+                
+                                //Postprocessing 
+                initPostprocessing();
 
                 mouse = new THREE.Vector2();
 
@@ -423,59 +392,86 @@
                 container.appendChild( stats.domElement );
 
 
+                //Call start function
+                cameraZoomOut();
 
-
-
-                // composer2.addPass( effectDotScreen ); x
-                // composer2.addPass( renderMask );
-                // composer2.addPass( effectColorify1 );
-                // composer2.addPass( clearMask );
-                // composer2.addPass( renderMaskInverse );
-                // composer2.addPass( effectColorify2 );
-                // composer2.addPass( effectVignette );
-
-                // var effectColorify1 = new THREE.ShaderPass( THREE.ColorifyShader );
-                // var effectColorify2 = new THREE.ShaderPass( THREE.ColorifyShader );
-                // effectColorify1.uniforms[ 'color' ].value.setRGB( 1, 0.8, 0.8 );
-                // effectColorify2.uniforms[ 'color' ].value.setRGB( 1, 0.75, 0.5 );
-
-                // var clearMask = new THREE.ClearMaskPass();
-                // var renderMask = new THREE.MaskPass( sceneModel, cameraPerspective );
-                // var renderMaskInverse = new THREE.MaskPass( sceneModel, cameraPerspective );
-
-                // var effectBloom = new THREE.BloomPass( 0.5 );
-                // var effectDotScreen = new THREE.DotScreenPass( new THREE.Vector2( 0, 0 ), 0.5, 0.8 );
-
-
-                // var shaderVignette = THREE.VignetteShader;
-                // var effectVignette = new THREE.ShaderPass( shaderVignette );
-
-
-
-
-
-
-
-
-
-                //----------------------------------
-
-
-                document.addEventListener('mousedown', onDocumentMouseDown, false);
-                document.addEventListener('touchstart', onDocumentTouchStart, false);
-
+                document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+                document.addEventListener( 'touchstart', onDocumentTouchStart, false );
                 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
                 window.addEventListener( 'resize', onWindowResize, false );
 
+
+                //Meny vid start
+                $( ".contentBox" ).fadeIn(2000); 
+                //$( ".addParticleForm" ).fadeIn(2000);
+                $( ".BackgroundMenu" ).fadeIn(3000);
+
             }
 
+            // function cameraZoomIn () { //(cordX, cordY, cordZ) {
+                
+            //     camera.position.z -= zoomFactor;
+            //     //camera.position.y -= Math.Pow(zoomFactor,2);
+
+            //     if ( camera.position.z > ( zoomInStop ) ) {
+            //         requestAnimationFrame( cameraZoomIn );
+            //     } 
+
+            //     else {
+
+            //         var randomNr = Math.round( Math.random() * (starData.length - 1) );
+
+            //         document.getElementById("theHeadline").innerHTML = starData[6].headline;
+            //         document.getElementById("theText").innerHTML = starData[6].message;
+            //         document.getElementById("theCountry").innerHTML = starData[6].country;
+
+            //         $( ".AddParticleBox" ).fadeOut(1000);
+            //         $( "#header" ).fadeOut(1000);
+            //         $( "#starText" ).fadeIn(2000);
+            //     }
+
+            //     render();
+            // }
+
+            function cameraZoomIn () { //(cordX, cordY, cordZ) {
+                
+                camera.position.z -= 0.1;//zoomFactor;
+                //camera.position.y -= Math.Pow(zoomFactor,2);
+
+                if ( camera.position.z > ( zoomInStop ) ) {
+                    requestAnimationFrame( cameraZoomIn );
+                } 
+                render();
+            }
+
+            function cameraZoomOut() {
+                
+                camera.position.z += zoomFactor;
+
+                if ( camera.position.z < ( zoomOutStop ) ) {
+                    requestAnimationFrame( cameraZoomOut );
+                } 
+                render();
+            }
+
+            // function closeStarScale() {
+            //     //closeStar.material.opacity += 0.1;
+            //     closeStar.radius += 0.1;
+
+            //     if ( closeStar.radius < 40 ) {
+            //         requestAnimationFrame( closeStarScale );
+            //     }
+            // }
+
             function addOneParticle () {
-                object = new THREE.Mesh( geometry2, new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, opacity: 0.2 } ) );
+                //Random number 0-3 
+                var randomNr = Math.round( Math.random() * 3 );
+                object = new THREE.Mesh( geometry2, new THREE.MeshBasicMaterial( { color: colorArray[ randomNr ] } ) );
 
                 //random * (max - min) + min
                 //böjd linje
                 object.position.x = Math.random() * (24 - (-24) ) + (-24);
-                object.position.y = - 0.02 * Math.pow(object.position.x, 2) + ( Math.random() * (11 - (1) ) + (1) ) ;
+                object.position.y = - 0.02 * Math.pow(object.position.x, 2) + ( Math.random() * (9 - (-2) ) + (-2) ) ;
                 object.position.z = Math.random() * (20 - (-20) + (-20) );
 
                 scene.add( object );
@@ -483,13 +479,14 @@
             }
 
             //CLICKABLE
-            function onDocumentTouchStart (event) {
+            function onDocumentTouchStart ( event ) {
                 event.preventDefault();
 
                 event.clientX = event.touches[0].clientX;
                 event.clientY = event.touches[0].clientY;
 
                 onDocumentMouseDown( event );
+                //onDocumentMouseMove( event );
             }
 
             function onDocumentMouseDown( event ) {
@@ -500,27 +497,30 @@
 
                 raycaster.setFromCamera( mouse, camera );
 
-                var intersectParticle = raycaster.intersectObjects( objects );
-                var intersectCircle = raycaster.intersectObject( circle ); 
+                
+                //var intersectCircle = raycaster.intersectObject( circle ); 
+                var intersectEarth = raycaster.intersectObject( earthMesh ); 
 
-                if ( intersectParticle.length > 0 ) {
-                    intersectParticle[ 0 ].object.material.color.setHex( Math.random()* 3 * 0xffaabb);//0xffffff );
+                //CLICK STAR
+                // //If click on starm, zoom in camera to a star, show text star
+                //var intersectStar = raycaster.intersectObjects( objects );
+                // if ( intersectStar.length > 0 ) {
+                    
+                //     var randomNr = Math.round(Math.random() * 3);
+                //     intersectStar[ 0 ].object.material.color.setHex( colorArray2[ randomNr ]);
 
-                    circle.visible = true;
+                //     closeStar.visible = true;
 
-                    console.log("Circle visible");
+                //     //zoom in to particel, closeStar
+                //     cameraZoomIn();
 
-                    circle.position.x = intersectParticle.position.x;
-                    circle.position.y = intersectParticle.position.y;
-                    circle.position.z = intersectParticle.position.z;
+                //     //closeStar.visible = true;
+                //     closeStar.position.z = 5; 
+                //     closeStar.material.color.setRGB(intersectStar[ 0 ].object.material.color.r, intersectStar[ 0 ].object.material.color.g, intersectStar[ 0 ].object.material.color.b);
 
-                    $( circle ).fadeIn(500);
-                    // $( circle ).effect( "size", { to: { radius: 30 } }, 1000 );
-                }
-
-                if ( intersectCircle.length > 0 ) {
-                    circle.visible = false;
-                }
+                //     console.log("color");
+                //     console.log(intersectStar[ 0 ].object.material.color);
+                // }
 
             } 
 
@@ -530,7 +530,19 @@
                 
                 mouseX = ( 0.5*event.clientX - 0.5*(window.innerWidth / 2) );
                 mouseY = ( 0.5*event.clientY - 0.5*(window.innerWidth / 2) );
-            }           
+
+
+                // var intersectStar = raycaster.intersectObjects( objects );
+
+                // if ( intersectStar.length > 0 ) {
+                //     intersectStar[ 0 ].object.material.color.setHex( '0x000000' );
+                // }
+                
+            }      
+
+            // hideDiv(".AddParticleBox") {
+
+            // }     
 
 
             function onWindowResize() {
@@ -541,15 +553,54 @@
                 composer.setSize( window.innerWidth, window.innerHeight );
             }
 
+            function initPostprocessing () {
+
+                //Effectcomposer to combine miltiple shaders with addPass
+                composer = new THREE.EffectComposer( renderer );
+                //Renderpass to render te 3D scene into the effect chain
+                composer.addPass( new THREE.RenderPass( scene, camera ) );
+
+                var effect = new THREE.ShaderPass( THREE.ColorCorrectionShader );
+                composer.addPass( effect );
+
+                
+                //FUNGERAR??                
+                var bokehPass = new THREE.BokehPass( scene, camera, {
+                    focus: 1.0,
+                    aperture: 55,
+                    maxblur: 1000,
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                } );
+
+                bokehPass.renderToScreen = true;
+                composer.addPass( bokehPass );
+                postprocessing.bokeh = bokehPass;
+
+                //Fokus
+                var effect = new THREE.ShaderPass( THREE.FocusShader );
+                effect.uniforms[ 'sampleDistance' ].value = 2;
+                effect.uniforms[ 'waveFactor' ].value = 0;
+                composer.addPass( effect );
+
+                //Film grain
+                var effect = new THREE.ShaderPass( THREE.FilmShader );
+                effect.uniforms[ 'time' ].value = 50;
+                effect.uniforms[ 'nIntensity' ].value = 0.07;
+                effect.uniforms[ 'sIntensity' ].value = 0.005;
+                // effect.uniforms[ 'sCount' ].value = 4000;
+                effect.uniforms[ 'grayscale' ].value = 0.1;
+                effect.renderToScreen = true;
+                composer.addPass( effect );
+
+                raycaster = new THREE.Raycaster();
+            }
+
+
+
             function animate() {
 
                 requestAnimationFrame( animate );
-
-
-                if (circle.radius < 60) { //circle.visible == true && 
-                    circle.scale.radius += 0.2;
-                    //circle.scale.x += 2;
-                }
 
                 //timeFrame = clock.getDelta(); 
                 render();
@@ -572,68 +623,100 @@
 
                 camera.lookAt( scene.position );
 
-                // SLUTADE HÄR ???????????????????????
-                // if (circle.visible == true && circle.radius < 20) {
-                //     circle.scale.radius += 2;
-                //     //circle.scale.x += 2;
-                // }
-
                 camera.rotation.y -= ( mouseX - camera.position.x ) * 0.0001;
                 camera.rotation.x -=  ( mouseY - camera.position.y ) * 0.0001;
 
-                //group.rotation.y -= 0.005;
-                //circle.geometry.verticesNeedUpdate = true;
+                //---- JAVASCRIPT -----
+                // $( "#clickBox" ).click( function() {
 
-                //only show some particles fungerar ej
-                // for (var i = 0; i < objects.length; i++) {
+                //     closeStar.visible = true;
 
-                //     var distance1 = new THREE.Vector3(objects[i].position.x, objects[i].position.y, objects[i].position.z );
-                //     var distance2 = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z );
+                //     //zoom in to particel, closeStar
+                //     cameraZoomIn();
+                // });
 
-                //     if ( distance1.distanceTo( distance2 ) < 10 || distance1.distanceTo( distance2 ) > 10 ) 
-                //         objects[i].visible = false;
-                    
-                //     else 
-                //         objects[i].visible = true;
-                // }
+
+                $( "#clickBox" ).click( function() {
+                   cameraZoomIn();
+                });
 
 
 
-                //JAVASCRIPT
+                //SLUTADE HÄR
+                // $( "#starText" ).click( function() {
+                //     $( ".AddParticleBox" ).fadeIn(1000);
+                //     $( "#header" ).fadeIn(1000);
+                //     $( "#starText" ).fadeOut(2000);
+                // });
 
                 $( ".AddParticleBox" ).click( function() {
-                    $( ".BackgroundMenu" ).fadeIn(1500);
-                    $( ".addParticleForm2" ).fadeIn(2000);
+
+                    $( ".addParticleForm" ).fadeIn(2000);
+                    $( ".BackgroundMenu" ).fadeIn(2000);
+                    $( "#header" ).fadeOut(2000);
+                    $( ".AddParticleBox" ).fadeOut(4000);
+
+                    // document.getElementById("#clickBox").style.pointerEvents = "none";
                 });
 
 
                 //Fade out menu
                 $( "#start" ).click( function() {
-                    $( ".contentBox" ).fadeOut(1000);//"linear");
-                    $( ".BackgroundMenu" ).fadeOut(1100);
+                    $( ".contentBox" ).fadeOut(3000);
+                    $( ".BackgroundMenu" ).fadeOut(2000);
+                    $( "#header" ).fadeIn(2000);
+                    $( ".AddParticleBox" ).fadeIn(4000);
+
+                    // document.getElementById("#clickBox").style.pointerEvents = "all";
                 });
 
-                $("#btn-submit").click(function() {
-                    $( ".addParticleForm2" ).fadeOut(1000);
-                    $( ".BackgroundMenu" ).fadeOut(1100); 
+                //Click back button in form  
+                $( "#btn-back" ).click( function() {
+                    $( ".AddParticleBox" ).fadeIn(1000);
+                    $( "#header" ).fadeIn(1000);
+                    $( ".addParticleForm" ).fadeOut(2000);
+                    $( ".BackgroundMenu" ).fadeOut(2000);
+
+                    // document.getElementById("#clickBox").style.pointerEvents = "all";
+
+                    //Ta bort text
+                    document.getElementById("theHeadline").innerHTML = "";
+                    document.getElementById("theText").innerHTML = "";
+                    document.getElementById("theCountry").innerHTML = "";
                 });
 
-                //composer.render();
-                renderer.render( scene, camera );
+                $( "#create-btn" ).click( function() {
+                    
+                    //ta bort text
+                    document.getElementById("theHeadline").innerHTML = "";
+                    document.getElementById("theText").innerHTML = "";
+                    document.getElementById("theCountry").innerHTML = "";
+
+                    // document.getElementById("#clickBox").style.pointerEvents = "all";
+
+                    $( ".AddParticleBox" ).fadeIn(1000);
+                    $( "#header" ).fadeIn(1000);
+                    $( ".addParticleForm" ).fadeOut(2000);
+                    $( ".BackgroundMenu" ).fadeOut(2000);
+                    //Ge OK status
+                });
+
+                
+
+                // $("#btn-submit").click(function() {
+                //     $( ".addParticleForm" ).fadeOut(1000);
+                //     $( ".BackgroundMenu" ).fadeOut(1100); 
+                // });
+
+                composer.render();
+                //renderer.render( scene, camera );
             }
 
 
         </script>
 
     </body>
-
 </html>
-
-
-
-
-
-
 
 
 

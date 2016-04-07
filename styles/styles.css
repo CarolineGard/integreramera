@@ -24,15 +24,61 @@ html, body {
 	background-color: #ffffff;
 }
 
+
+.contentBox h1 {
+	height: 45px;
+	width: 130px;
+	border-color: 'white';
+	border-style: solid;
+	font-size: 30px;
+	padding-top: 3%;
+	font-weight: normal;
+	text-align: center;
+	margin: 0 auto;
+	margin-top: 15%;
+	border-radius: 5px;
+}
+
+.contentBox h1:hover {
+	background-color: #ffffff;
+	color: #262626;
+	border-color: #ffffff;
+	cursor: pointer;
+}
+
+h2 {
+	font-weight: normal;
+	font-size: 40px;
+	text-align: center;	
+		
+}
+
+h4 {
+	font-weight: normal;
+	margin-bottom: -2%;
+	text-align: center;
+}
+
+p {
+	font-size: 14px;
+}
+
+hr {
+	margin-top: -5%;
+	width: 100%;
+	margin-bottom: 7%;
+}
+
 #header {
     margin: 0 auto;
     font-size: 50px;
     /*color: #6C7A89;*/
-    margin-top: 0%;
+    margin-top: 1%;
     color: #a6a6a6;
     z-index: 1000;
     position: absolute;
     width: 100%;
+    display: none;
 
     /*font-family: 'Montserrat', sans-serif;
 	font-family: 'Roboto', sans-serif;
@@ -50,21 +96,27 @@ html, body {
 }
 
 .AddParticleBox {
-	width: 200px;
-	height: 50px;
+	width: 230px;
+	height: 70px;
 	background-color: #ff33a2;
 	color: #ffffff;
-	position: absolute;
-	margin-left: 2%;
-	margin-top: 2%;
-	padding-top: 0.1%;
+	margin: 12.3% 0px 0px 42.7%;
+	opacity: 0.4;
+	position: absolute;	
 	border-radius: 5px;
-	/*font-family: 'Montserrat', sans-serif;*/
+	font-family: 'Montserrat', sans-serif;
+	display: none;
+}
+
+.AddParticleBox p {
+	font-size: 20px;
+	font-family: 'Dosis', sans-serif
 }
 
 .AddParticleBox:hover {
-	background-color: #ff80c6;	
+	/*background-color: #ff80c6;	*/
 	cursor: pointer;
+	opacity: 0.7;
 }
 
 .BackgroundMenu {
@@ -124,17 +176,128 @@ html, body {
 	display: none;
 }
 
-/*.contentBox:hover {
-	opacity: 0.7;
-}*/
-
 .contentText {
 	width: 75%;
 	margin: 0 auto;
 }
 
 
-h1 {
+
+.addParticleForm {
+	margin: 0 auto;
+	width: 40%;
+	height: 68%;
+	margin-top: 6%;
+	margin-left: 30%;
+	padding-top: 4%;
+	border-radius: 7px;
+	font-family: 'Raleway', sans-serif;
+	background-color: #000000;
+	opacity: 0.6;
+	position: absolute;
+	color: #ffffff;
+	z-index: 600;
+	display: none;
+}
+
+.addParticleForm h2 {
+	width: 100%;
+	font-size: 40px;
+	margin: 0;
+	border: none;
+	margin-top: -2%;
+	margin-bottom: 5%;
+}
+
+.addParticleForm hr {
+	width: 75%;
+	margin-top: -3%;
+	margin-bottom: 4%;
+}
+
+.addParticleForm label {
+	font-size: 20px;
+}
+
+.addParticleForm input {
+	border-radius: 5px;
+	width: 480px;
+	height: 30px;
+	margin-top: 1%;
+	margin-bottom: 2%;
+	font-size: 20px;
+	z-index: 1;
+}
+
+textarea {
+	border-radius: 5px;
+	margin-top: 1%;
+	margin-bottom: 2%;
+	font-size: 20px;
+	z-index: 1;
+	/*height: 120px;*/
+}
+
+.addParticleForm h1 {
+	height: 45px;
+	width: 130px;
+	margin: 0 auto;
+	margin-top: 4%;
+	border-radius: 5px;
+	border-color: 'white';
+	border-style: solid;
+	padding-top: 2%;
+	/*padding-bottom: 2%;*/
+	/*border-color: 'white';*/
+}
+
+.addParticleForm h1:hover {
+	background-color: #ffffff;
+	color: #262626;
+	border-color: #ffffff;
+	cursor: pointer;
+}
+
+
+/*.contentBox h1 {
+	height: 45px;
+	width: 130px;
+	border-color: 'white';
+	border-style: solid;
+	font-size: 30px;
+	padding-top: 3%;
+	font-weight: normal;
+	text-align: center;
+	margin: 0 auto;
+	margin-top: 15%;
+	border-radius: 5px;
+}
+*/
+
+#btn-back {
+	margin-top: -6%;
+	margin-bottom: 5%;
+}
+
+#btn-back:hover {
+	margin-top: -6%;
+	margin-bottom: 5%;
+	cursor: pointer;
+}
+
+/*	height: 45px;
+	width: 130px;
+	border-color: 'white';
+	border-style: solid;
+	font-size: 30px;
+	padding-top: 3%;
+	font-weight: normal;
+	text-align: center;
+	margin: 0 auto;
+	margin-top: 15%;
+	border-radius: 5px;
+
+/*.addParticleForm2 h1 {
 	height: 45px;
 	width: 130px;
 	border-color: 'white';
@@ -153,81 +316,73 @@ h1:hover {
 	color: #262626;
 	border-color: #ffffff;
 	cursor: pointer;
-}
-
-h2 {
-	font-weight: normal;
-	font-size: 40px;
-	text-align: center;	
-		
-}
-
-h4 {
-	font-weight: normal;
-	margin-bottom: -2%;
-	text-align: center;
-}
-
-p {
-	font-size: 14px;
-}
-
-hr {
-	margin-top: -5%;
-	width: 100%;
-	margin-bottom: 7%;
-}
+}*/
 
 
-p {
-	/*font-variant: small-caps;*/
-	/*font-weight: 0.1;*/
-}
-
-.addParticleForm2 {
-	margin: 0 auto;
-	padding-top: 4%;
-	margin-top: 15%;
-	margin-left: 22%;
-	width: 55%;
-	height: 40%;
-	border-radius: 7px;
-
-	background-color: #000000;
-	opacity: 0.8;
-	position: absolute;
-	color: #ffffff;
-
-	display: none;
-}
-
-.addParticleForm2 h1 {
-	width: 100%;
-	margin: 0;
-	border: none;
-	margin-bottom: 2%;
-	/*margin-top: -0px;*/
-}
-
-#btn-submit {
+/*#btn-submit {
 	height: 20%;
 	width: 10%;
 	font-size: 15px;
 	margin-top: 5%;
 	cursor: pointer;
+}*/
+
+#starText {
+	height: 700px;
+	width: 700px;
+	border-radius: 50%;
+	position: absolute;
+	margin-top: 5%;
+	margin-left: 28%;
+	background-color: #ff6699;
+	z-index: 1000px; 
+	font-size: 200px;
+	opacity: 0.9;
+	color: #ffffff;
+	text-align: center;
+	display: table-cell;
+	/*visibility: hidden;*/
+	display: none;
+}
+
+#starText h2 {
+	margin-top: 14%;
+	color: #ffffff;
+	font-size: 55px;
+}
+
+#starText p {
+	height: 42%;
+	width: 85%;
+	border-radius: 50%;
+	margin: 0 auto;
+	color: #ffffff;
+	font-size: 20px;
+}
+
+#starText h3 {
+	color: #ffffff;
+	font-size: 50px;
+}
+
+#starText hr {
+	width: 70%;
+	color: #ffffff;
+	border: 1px solid rgb(255, 255, 255);
+
 }
 
 
-
-
-
-
-
-
-
-
-
-
+#clickBox {
+	width: 40%;
+	height: 25%;
+	background-color: #000000;
+	opacity: 0.0;
+	margin-top: 18%;
+	margin-left: 30%;
+	z-index: 500;
+	position: absolute;
+}
 
 
 
