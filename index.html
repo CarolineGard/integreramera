@@ -170,6 +170,10 @@
 
             var earthMaterial, earthMesh;
 
+            var envGeometry1, envGeometry2, envGeometry3, envGeometry4, envGeometry5, envGeometry6, envGeometry7;
+            var envMesh1, envMesh2, envMesh3, envMesh4, envMesh5, envMesh6, envMesh7; 
+            var movingParent;
+
             var INTERSECTED;
 
             var composer;
@@ -181,7 +185,6 @@
             var zoomFactor = 1;
             var zoomInStop = 8.5;
             var zoomOutStop = 90;
-
 
             var starData = [];
 
@@ -211,20 +214,20 @@
                 light.position.set( 0, 1, 40 );
                 light.castShadow = false;
                 light.intensity = 0.5;
-                scene.add( light );
+                group.add( light );
 
                 light = new THREE.DirectionalLight( 0xffffff );
                 light.position.set( 0, -2, -0.5 );
                 light.intensity = 5.0;
                 light.shadowDarkness = 0;
-                scene.add( light );
+                group.add( light );
 
 
                 light = new THREE.DirectionalLight( 0xffffff );
                 light.position.set( 0, 1, 0 );
                 light.intensity = 0.3;
                 light.shadowDarkness = 0;
-                scene.add( light );
+                group.add( light );
 
                 light = new THREE.AmbientLight( 0x222222 );
                 scene.add( light );
@@ -233,19 +236,7 @@
                 //Read Json File
                 $.getJSON("data/ExperiencesData.json", function(data) {
                     starData = data.experiences;
-                    // $( "#starText" ).fadeIn(2000); 
-                    // document.getElementById("theHeadline").innerHTML = starData[6].headline;
-                    // document.getElementById("theText").innerHTML = starData[6].message;
-                    // document.getElementById("theCountry").innerHTML = starData[6].country;
-
-                //$( ".AddParticleBox" ).fadeOut(500);
-
-
                 });
-
-
-
-
 
                     //Depth test
                     var geometry4 = new THREE.CylinderGeometry( 5, 5, 2000, 32 );
@@ -286,46 +277,113 @@
                 group.add ( earthMesh );
 
                 //Background PARTICLES ----------------------------------------------- Kan förenklas
-                var starPositions = new Float32Array(1000 * 3);
-                var starColors = new Float32Array(1000 * 3);
-                var starSizes = new Float32Array(1000 * 3);
+                // var starPositions = new Float32Array(1000 * 3);
+                // var starColors = new Float32Array(1000 * 3);
+                // var starSizes = new Float32Array(1000 * 3);
 
-                var starColor = new THREE.Color();
+                // var starColor = new THREE.Color();
 
-                for ( var i = 0; i < 100; i ++ ) {
+                // for ( var i = 0; i < 100; i ++ ) {
 
-                    var vertex = new THREE.Vector3();
+                //     var vertex = new THREE.Vector3();
 
-                    vertex.x = Math.random() * 1000 - 500;
-                    vertex.y = Math.random() * 1000 - 500;
-                    vertex.z = Math.random() * 1000 - 500;
+                //     vertex.x = Math.random() * 1000 - 500;
+                //     vertex.y = Math.random() * 1000 - 500;
+                //     vertex.z = Math.random() * 1000 - 500;
                    
-                    vertex.toArray( starPositions, i * 3 );
+                //     vertex.toArray( starPositions, i * 3 );
 
-                    starColor.setHSL( 255, 255, 255 )
-                    starColor.toArray( starColors, i * 3 );
+                //     starColor.setHSL( 255, 255, 255 )
+                //     starColor.toArray( starColors, i * 3 );
 
-                    starSizes[ i ] = PARTICLE_SIZE * 0.9;
-                }
+                //     starSizes[ i ] = PARTICLE_SIZE * 0.9;
+                // }
 
-                var bStars = new THREE.BufferGeometry();
-                bStars.addAttribute( 'position', new THREE.BufferAttribute( starPositions, 3 ) );
-                bStars.addAttribute( 'customColor', new THREE.BufferAttribute( starColors, 3 ) );
-                bStars.addAttribute( 'size', new THREE.BufferAttribute( starSizes, 1 ) );
+                // var bStars = new THREE.BufferGeometry();
+                // bStars.addAttribute( 'position', new THREE.BufferAttribute( starPositions, 3 ) );
+                // bStars.addAttribute( 'customColor', new THREE.BufferAttribute( starColors, 3 ) );
+                // bStars.addAttribute( 'size', new THREE.BufferAttribute( starSizes, 1 ) );
 
-                var starMaterial = new THREE.ShaderMaterial( {
-                    uniforms: {
-                        color:   { type: "c", value: new THREE.Color( 0x262626 ) },
-                        texture: { type: "t", value: new THREE.TextureLoader().load( "textures/disc3.png" ) }
-                    },
-                    vertexShader: document.getElementById( 'vertexshader' ).textContent,
-                    fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+                // var starMaterial = new THREE.ShaderMaterial( {
+                //     uniforms: {
+                //         color:   { type: "c", value: new THREE.Color( 0x262626 ) },
+                //         texture: { type: "t", value: new THREE.TextureLoader().load( "textures/disc3.png" ) }
+                //     },
+                //     vertexShader: document.getElementById( 'vertexshader' ).textContent,
+                //     fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
 
-                    alphaTest: 0.9,
+                //     alphaTest: 0.9,
+                // } );
+
+                // particles = new THREE.Points( bStars, starMaterial );
+                //scene.add( particles ); //Tillfälligt borttaget
+
+                //------ ENVIRONMENT -------------------------
+
+                var envMaterial = new THREE.MeshPhongMaterial( { 
+                    color: 0x000000
+                    // shininess: 0,
+                    // castShadow: false
+                    // emissive: 0x000000
                 } );
 
-                particles = new THREE.Points( bStars, starMaterial );
-                //scene.add( particles ); //Tillfälligt borttaget
+                envGeometry1 = new THREE.SphereGeometry(10, 10, 10);
+                envGeometry2 = new THREE.SphereGeometry(10, 10, 10);
+                envGeometry3 = new THREE.SphereGeometry(10, 10, 10);
+                // envGeometry4 = new THREE.SphereGeometry(10, 10, 10);
+                // envGeometry5 = new THREE.SphereGeometry(10, 10, 10);
+
+                envMesh1 = new THREE.Mesh(envGeometry1, envMaterial);
+                envMesh2 = new THREE.Mesh(envGeometry2, envMaterial);
+                envMesh3 = new THREE.Mesh(envGeometry3, envMaterial);
+                // envMesh4 = new THREE.Mesh(envGeometry4, envMaterial);
+                // envMesh5 = new THREE.Mesh(envGeometry5, envMaterial);
+
+                envMesh1.position.x = 130;
+                envMesh1.position.y = 40;
+                envMesh1.position.z = -200;
+
+                envMesh2.position.x = -25;
+                envMesh2.position.y = -20;
+                envMesh2.position.z = 55;
+
+                envMesh3.position.x = 10;
+                envMesh3.position.y = 5;
+                envMesh3.position.z = -250;
+
+
+                // envMesh4.position.x = 430;
+                // envMesh4.position.y = 40;
+                // envMesh4.position.z = -200;
+
+                // envMesh5.position.x = 530;
+                // envMesh5.position.y = 40;
+                // envMesh5.position.z = -200;
+
+                scene.add( envMesh1 );
+                scene.add( envMesh2 );
+                scene.add( envMesh3 );
+                
+                // scene.add( envMesh4 );
+                // scene.add( envMesh5 );
+
+                envMesh1.material.color.setHex('0xffcccc');
+                envMesh1.material.color.setHex('0xffffcc');
+
+
+                //Svängning
+                movingParent = new THREE.Object3D();
+                scene.add( movingParent );
+
+                pivot = new THREE.Object3D();
+                pivot.rotation.y = 2 * Math.PI / 3;
+
+                movingParent.add( pivot );
+
+                pivot.add( envMesh3 );
+                
+
+
 
 
 
@@ -625,6 +683,17 @@
 
                 camera.rotation.y -= ( mouseX - camera.position.x ) * 0.0001;
                 camera.rotation.x -=  ( mouseY - camera.position.y ) * 0.0001;
+
+                //Moving planet in background
+                movingParent.rotation.y += 0.005;
+
+                envMesh1.position.x -= Math.random() * (0.1 + 0.1) - 0.1;
+                envMesh1.position.y -= Math.random() * (0.1 + 0.1) - 0.1;
+
+                envMesh2.position.x -= Math.random() * (0.01 + 0.01) - 0.01;
+                envMesh2.position.y -= Math.random() * (0.01 + 0.01) - 0.01;
+
+
 
                 //---- JAVASCRIPT -----
                 // $( "#clickBox" ).click( function() {
