@@ -3,7 +3,6 @@ html, body {
 	height: 100%;
 	margin: 0 auto;
 	padding: 0;
-	margin-top: -0.5%;
 	text-align: center;
 	/*font-family: 'Montserrat', sans-serif;*/
 	font-family: 'Roboto', sans-serif;
@@ -35,7 +34,7 @@ html, body {
 	font-weight: normal;
 	text-align: center;
 	margin: 0 auto;
-	margin-top: 15%;
+	margin-top: 11%;
 	border-radius: 5px;
 }
 
@@ -96,21 +95,22 @@ hr {
 }
 
 .AddParticleBox {
-	width: 230px;
-	height: 70px;
+	width: 255px;
+	height: 67px;
 	background-color: #ff33a2;
 	color: #ffffff;
-	margin: 12.3% 0px 0px 42.7%;
+	margin: 12.3% 0px 0px 41.7%;
 	opacity: 0.4;
 	position: absolute;	
 	border-radius: 5px;
-	font-family: 'Montserrat', sans-serif;
+	padding-top: 0.5%;
+	/*font-family: 'Montserrat', sans-serif;*/
 	display: none;
 }
 
 .AddParticleBox p {
-	font-size: 20px;
-	font-family: 'Dosis', sans-serif
+	font-size: 18px;
+	font-family: 'Raleway', sans-serif
 }
 
 .AddParticleBox:hover {

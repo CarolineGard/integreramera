@@ -31,18 +31,20 @@
             </div>
 
             <div class="AddParticleBox"> 
-                <p>Share an experience!</p>
+                <!-- <p>Share an experience!</p> -->
+                <p>SHARE AN EXPERIENCE</p>
             </div>
 
 
             <!-- Menu -->
             <div class="contentBox"> 
                 <div class="contentText">
-                    <h4>WELCOME TO</h4>
                     <h2>INTEGRERAMERA</h2>
                     <hr>
                     <!-- <hr> -->
-                    <p>See how the world can be changed. We just have to adjust and be acceptable. Please help us in this journey to make the earth a more livable place. Join us, erase the racism and bring love and happiness. bla bla bla bla bla bla bla ba bla bla bla bla bla bla bla blabla bla bla bla bla bla bla blabla bla bla blabla bla bla blabla bla bla bla bla bla bla bla bla b</p>
+                    <p>Here we can share and learn about small and big things from all over the world. Help making integration easier for everyone by understanding others cultures and share about yours. By clicking on stars above the earth, you can read about experiences from other cultures. You can also add your own experience. Here we share information about how we live and the "unspoken rules" all cultures have. All this, so that we can eliminate missunderstandings among us. So come along and make the world an easier place!</p>
+
+<!--                     See how the world can be changed. We just have to adjust and be acceptable. Please help us in this journey to make the earth a more livable place. Join us, erase the racism and bring love and happiness. bla bla bla bla bla bla bla ba bla bla bla bla bla bla bla blabla bla bla bla bla bla bla blabla bla bla blabla bla bla blabla bla bla bla bla bla bla bla bla b -->
 
                     <h1 id="start">START</h1>
                 </div>
@@ -321,15 +323,16 @@
                 //------ ENVIRONMENT -------------------------
 
                 var envMaterial = new THREE.MeshPhongMaterial( { 
-                    color: 0x000000
+                    color: 0x000000,
+                    SmoothShading: true
                     // shininess: 0,
                     // castShadow: false
                     // emissive: 0x000000
                 } );
 
                 envGeometry1 = new THREE.SphereGeometry(10, 10, 10);
-                envGeometry2 = new THREE.SphereGeometry(10, 10, 10);
-                envGeometry3 = new THREE.SphereGeometry(10, 10, 10);
+                envGeometry2 = new THREE.SphereGeometry(10, 10, 60);
+                envGeometry3 = new THREE.SphereGeometry(6, 10, 10);
                 // envGeometry4 = new THREE.SphereGeometry(10, 10, 10);
                 // envGeometry5 = new THREE.SphereGeometry(10, 10, 10);
 
@@ -389,7 +392,7 @@
 
 
                 //CLICKABLE PARTICLES ------------------------
-                geometry2 = new THREE.CircleGeometry(0.4, 5);//(0.42, 5);//( 0.4, 32 );
+                geometry2 = new THREE.CircleGeometry(0.4, 20);//(0.42, 5);//( 0.4, 32 );
  
                 for (var i = 0; i < 100; i++ ) {
                     addOneParticle();
@@ -620,9 +623,7 @@
 
                 var effect = new THREE.ShaderPass( THREE.ColorCorrectionShader );
                 composer.addPass( effect );
-
-                
-                //FUNGERAR??                
+        
                 var bokehPass = new THREE.BokehPass( scene, camera, {
                     focus: 1.0,
                     aperture: 55,
