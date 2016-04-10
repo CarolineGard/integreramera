@@ -11,14 +11,16 @@
 
     </head>
 
-    <body>
+    <body ><!--onload="loadSound();"-->
+
         <div id="container">
             
             <div class="BackgroundMenu"></div>
-            <div class="BackgroundAddParticle"></div>
+            <div id="BackgroundAddParticle" ></div><!--onclick="handleClick();" class="playSound"-->
             <div id="clickBox"></div>
             
             <div id="starText">
+                <img src="icons/quitthin.png" alt="back" id="btn-quit" style="width:70px; height:70px;">
                 <h2 id="theHeadline"></h2>
                 <hr>
                 <p id="theText"></p>
@@ -43,9 +45,6 @@
                     <hr>
                     <!-- <hr> -->
                     <p>Here we can share and learn about small and big things from all over the world. Help making integration easier for everyone by understanding others cultures and share about yours. By clicking on stars above the earth, you can read about experiences from other cultures. You can also add your own experience. Here we share information about how we live and the "unspoken rules" all cultures have. All this, so that we can eliminate missunderstandings among us. So come along and make the world an easier place!</p>
-
-<!--                     See how the world can be changed. We just have to adjust and be acceptable. Please help us in this journey to make the earth a more livable place. Join us, erase the racism and bring love and happiness. bla bla bla bla bla bla bla ba bla bla bla bla bla bla bla blabla bla bla bla bla bla bla blabla bla bla blabla bla bla blabla bla bla bla bla bla bla bla bla b -->
-
                     <h1 id="start">START</h1>
                 </div>
             </div>
@@ -59,20 +58,11 @@
                     <label> Category </label><br>
                     <input name="category" type="text" /><br>
                     <label> Country </label><br>
-                    <input name="theCountry" type="text" /> <br>
-<!--                      <select class="w3-select w3-border" name="option">
-                        <option  value="Sweden">Sweden</option>
-                        <option  value="Denmark">Denmark</option>
-                        <option  value="South Korea">South Korea</option>
-                    </select>  -->
+                    <input name="theCountry" type="text" /><br>
                     <label> Text </label><br>
                     <textarea name="theText" type="text" cols="40" rows="6"></textarea>
-                    <!-- <input id="textInput" name="theText" type="text" rows="4"/> -->
                     <br>
                     <h1 id="create-btn">Create</h1>
-                    <!-- <button type="submit" id="btn-submit">Create</button> -->
-
-                <!-- </form> -->
             </div>
 
         </div>
@@ -83,7 +73,9 @@
         <script src="js/renderers/Projector.js"></script>
         <script src="js/libs/stats.min.js"></script>
         <script src="js/libs/dat.gui.min.js"></script>
+        <script src="js/libs/Tween.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+
         <script src='threex.domevents.js'></script>
 
         <script src="js/shaders/CopyShader.js"></script>
@@ -97,6 +89,8 @@
         <script src="js/postprocessing/MaskPass.js"></script>
         <script src="js/postprocessing/ShaderPass.js"></script>
         <script src="js/postprocessing/BokehPass.js"></script> 
+
+        <!--<script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>-->
 
          <!-- <script src="bower_components/jquery/dist/jquery.min.js"></script> -->
 
@@ -184,11 +178,15 @@
             var colorArray = ['#ff6699', '#ffff66', '#66ff66', '#4db8ff'];
             var colorArray2 = ['0xff6699', '0xffff66', '0x66ff66', '0x4db8ff'];
 
-            var zoomFactor = 1;
+            var zoomFactor = 1.0;
             var zoomInStop = 8.5;
-            var zoomOutStop = 90;
+            var zoomOutStop = 87;
 
             var starData = [];
+
+            var soundID = "OneClick";
+
+            var count = 0;
 
 
             init();
@@ -200,12 +198,12 @@
 
                 camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
                 //Camera angel z: camera.position.z = 100;
-                camera.position.z = 0;
+                camera.position.z = -13;
                 camera.position.y = 0;
                 camera.rotation.x = 40;
 
                 scene = new THREE.Scene();
-                scene.fog = new THREE.FogExp2( 0xffffff, 0.002 );
+                scene.fog = new THREE.FogExp2( 0xffffff, 0.004 );
                 
 
                 group = new THREE.Group();
@@ -278,53 +276,13 @@
                 earthMesh.position.y = -21;
                 group.add ( earthMesh );
 
-                //Background PARTICLES ----------------------------------------------- Kan förenklas
-                // var starPositions = new Float32Array(1000 * 3);
-                // var starColors = new Float32Array(1000 * 3);
-                // var starSizes = new Float32Array(1000 * 3);
-
-                // var starColor = new THREE.Color();
-
-                // for ( var i = 0; i < 100; i ++ ) {
-
-                //     var vertex = new THREE.Vector3();
-
-                //     vertex.x = Math.random() * 1000 - 500;
-                //     vertex.y = Math.random() * 1000 - 500;
-                //     vertex.z = Math.random() * 1000 - 500;
-                   
-                //     vertex.toArray( starPositions, i * 3 );
-
-                //     starColor.setHSL( 255, 255, 255 )
-                //     starColor.toArray( starColors, i * 3 );
-
-                //     starSizes[ i ] = PARTICLE_SIZE * 0.9;
-                // }
-
-                // var bStars = new THREE.BufferGeometry();
-                // bStars.addAttribute( 'position', new THREE.BufferAttribute( starPositions, 3 ) );
-                // bStars.addAttribute( 'customColor', new THREE.BufferAttribute( starColors, 3 ) );
-                // bStars.addAttribute( 'size', new THREE.BufferAttribute( starSizes, 1 ) );
-
-                // var starMaterial = new THREE.ShaderMaterial( {
-                //     uniforms: {
-                //         color:   { type: "c", value: new THREE.Color( 0x262626 ) },
-                //         texture: { type: "t", value: new THREE.TextureLoader().load( "textures/disc3.png" ) }
-                //     },
-                //     vertexShader: document.getElementById( 'vertexshader' ).textContent,
-                //     fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-
-                //     alphaTest: 0.9,
-                // } );
-
-                // particles = new THREE.Points( bStars, starMaterial );
-                //scene.add( particles ); //Tillfälligt borttaget
-
                 //------ ENVIRONMENT -------------------------
 
-                var envMaterial = new THREE.MeshPhongMaterial( { 
+                var envMaterial = new THREE.MeshBasicMaterial( { 
                     color: 0x000000,
-                    SmoothShading: true
+                    fog: false,
+                    wireframe: true 
+                    //SmoothShading: true
                     // shininess: 0,
                     // castShadow: false
                     // emissive: 0x000000
@@ -354,6 +312,8 @@
                 envMesh3.position.y = 5;
                 envMesh3.position.z = -250;
 
+                envMesh1.material.side = THREE.DoubleSide;    
+
 
                 // envMesh4.position.x = 430;
                 // envMesh4.position.y = 40;
@@ -362,16 +322,18 @@
                 // envMesh5.position.x = 530;
                 // envMesh5.position.y = 40;
                 // envMesh5.position.z = -200;
-
+                envMesh1.material.color.setHex('0xffcccc');
                 scene.add( envMesh1 );
+                envMesh1.material.color.setHex('0xffffcc');
                 scene.add( envMesh2 );
                 scene.add( envMesh3 );
                 
                 // scene.add( envMesh4 );
                 // scene.add( envMesh5 );
 
-                envMesh1.material.color.setHex('0xffcccc');
-                envMesh1.material.color.setHex('0xffffcc');
+                //playSound();
+                
+                
 
 
                 //Svängning
@@ -384,15 +346,10 @@
                 movingParent.add( pivot );
 
                 pivot.add( envMesh3 );
-                
-
-
-
-
 
 
                 //CLICKABLE PARTICLES ------------------------
-                geometry2 = new THREE.CircleGeometry(0.4, 20);//(0.42, 5);//( 0.4, 32 );
+                geometry2 = new THREE.SphereGeometry(0.4, 20, 20);//(0.42, 5);//( 0.4, 32 );
  
                 for (var i = 0; i < 100; i++ ) {
                     addOneParticle();
@@ -414,16 +371,31 @@
                 mouse = new THREE.Vector2();
 
                 //-------------- CLOSE UP STAR --------------
-                var material = new THREE.MeshBasicMaterial({
-                    color: 0xffffff,
-                    opacity: 0.0
-                });
+                var closeStarMaterial = new THREE.MeshBasicMaterial({ color: 0x262626, opacity: 0.0 });
+                closeStarGeometry = new THREE.SphereGeometry(0.4, 100, 20);
 
-                var sphereGeometry = new THREE.SphereGeometry( 1, 21, 21 );
-                closeStar = new THREE.Mesh( sphereGeometry, material );
-                closeStar.position.z = -100;
-                closeStar.visible = false;
-                //scene.add( closeStar );
+                closeStar = new THREE.Mesh( closeStarGeometry, closeStarMaterial );
+
+                closeStar.position.x = -10 - (0.3*28);
+                closeStar.position.y = 0.01;
+                closeStar.position.z = 6 + (0.19*28);
+
+                scene.add( closeStar );
+
+                closeStar.material.side = THREE.DoubleSide;
+
+
+                //--------------  ENVIRONMENT -------------------------------
+                var mmm = new THREE.MeshBasicMaterial({ color: 0x4db8ff, opacity: 0.0 });
+                var ggggg = new THREE.SphereGeometry(20, 10, 20);
+
+                var staaaar = new THREE.Mesh( ggggg, mmm );
+
+                staaaar.position.x = -35;
+                staaaar.position.y = -35;
+                staaaar.position.z = 35;
+
+                scene.add( staaaar );
 
 
 
@@ -441,8 +413,9 @@
                 renderer.setClearColor( scene.fog.color );
 
                 renderer.sortObjects = false;
+
                 
-                                //Postprocessing 
+                //Postprocessing 
                 initPostprocessing();
 
                 mouse = new THREE.Vector2();
@@ -453,76 +426,86 @@
                 container.appendChild( stats.domElement );
 
 
-                //Call start function
-                cameraZoomOut();
-
                 document.addEventListener( 'mousedown', onDocumentMouseDown, false );
                 document.addEventListener( 'touchstart', onDocumentTouchStart, false );
                 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
                 window.addEventListener( 'resize', onWindowResize, false );
 
 
+                //Call start function
+                cameraZoomOut();
                 //Meny vid start
-                $( ".contentBox" ).fadeIn(2000); 
-                //$( ".addParticleForm" ).fadeIn(2000);
-                $( ".BackgroundMenu" ).fadeIn(3000);
+                $( ".contentBox" ).fadeIn(5000); 
+                $( ".BackgroundMenu" ).fadeIn(6000);
 
             }
 
-            // function cameraZoomIn () { //(cordX, cordY, cordZ) {
-                
-            //     camera.position.z -= zoomFactor;
-            //     //camera.position.y -= Math.Pow(zoomFactor,2);
-
-            //     if ( camera.position.z > ( zoomInStop ) ) {
-            //         requestAnimationFrame( cameraZoomIn );
-            //     } 
-
-            //     else {
-
-            //         var randomNr = Math.round( Math.random() * (starData.length - 1) );
-
-            //         document.getElementById("theHeadline").innerHTML = starData[6].headline;
-            //         document.getElementById("theText").innerHTML = starData[6].message;
-            //         document.getElementById("theCountry").innerHTML = starData[6].country;
-
-            //         $( ".AddParticleBox" ).fadeOut(1000);
-            //         $( "#header" ).fadeOut(1000);
-            //         $( "#starText" ).fadeIn(2000);
-            //     }
-
-            //     render();
-            // }
-
             function cameraZoomIn () { //(cordX, cordY, cordZ) {
-                
-                camera.position.z -= 0.1;//zoomFactor;
-                //camera.position.y -= Math.Pow(zoomFactor,2);
 
-                if ( camera.position.z > ( zoomInStop ) ) {
+                console.log(camera.position.z);
+
+                if ( camera.position.z > ( 12 ) ) {
+                    zoomFactor *= 0.99; 
+                    camera.position.z -= zoomFactor * 0.98;
+                    camera.position.x -= 0.131;
+                    
+                    console.log("XXXX:");
+                    console.log(camera.position.x);
                     requestAnimationFrame( cameraZoomIn );
-                } 
+                
+                }
+
+                
+
+                else {
+                    document.getElementById("theHeadline").innerHTML = starData[6].headline;
+                    document.getElementById("theText").innerHTML = starData[6].message;
+                    document.getElementById("theCountry").innerHTML = starData[6].country;
+                    $( "#starText" ).fadeIn(1000);
+                }
+                     
+                    
                 render();
+                
             }
 
             function cameraZoomOut() {
                 
-                camera.position.z += zoomFactor;
-
                 if ( camera.position.z < ( zoomOutStop ) ) {
+                    camera.position.z += zoomFactor;
+                    
+                    if (zoomFactor > 0.01)
+                        zoomFactor *= 0.989999;
+
+                    
                     requestAnimationFrame( cameraZoomOut );
                 } 
+
+                else {
+                    zoomFactor = 1.0;
+                    console.log("klar");
+                }
+
                 render();
             }
 
-            // function closeStarScale() {
-            //     //closeStar.material.opacity += 0.1;
-            //     closeStar.radius += 0.1;
+            function cameraZoomOutFromParticle() {
 
-            //     if ( closeStar.radius < 40 ) {
-            //         requestAnimationFrame( closeStarScale );
-            //     }
-            // }
+                if ( camera.position.z < ( 87 ) ) {
+                    zoomFactor *= 1.01; 
+                    camera.position.z += zoomFactor * 0.98;
+                    camera.position.x += 0.131;
+                    
+                    requestAnimationFrame( cameraZoomOutFromParticle );
+                }
+
+                else {
+                    zoomFactor = 1.0;
+                    console.log("klar");
+                }
+
+                render();
+            }
 
             function addOneParticle () {
                 //Random number 0-3 
@@ -558,30 +541,31 @@
 
                 raycaster.setFromCamera( mouse, camera );
 
-                
-                //var intersectCircle = raycaster.intersectObject( circle ); 
-                var intersectEarth = raycaster.intersectObject( earthMesh ); 
 
                 //CLICK STAR
-                // //If click on starm, zoom in camera to a star, show text star
-                //var intersectStar = raycaster.intersectObjects( objects );
-                // if ( intersectStar.length > 0 ) {
-                    
-                //     var randomNr = Math.round(Math.random() * 3);
-                //     intersectStar[ 0 ].object.material.color.setHex( colorArray2[ randomNr ]);
+                //If click on starm, zoom in camera to a star, show text star
+                var intersectStar = raycaster.intersectObjects( objects );
+                if ( intersectStar.length > 0 ) {
 
-                //     closeStar.visible = true;
+                    $( ".AddParticleBox" ).fadeOut(1000);
+                    $( "#header" ).fadeOut(1000);
 
-                //     //zoom in to particel, closeStar
-                //     cameraZoomIn();
 
-                //     //closeStar.visible = true;
-                //     closeStar.position.z = 5; 
-                //     closeStar.material.color.setRGB(intersectStar[ 0 ].object.material.color.r, intersectStar[ 0 ].object.material.color.g, intersectStar[ 0 ].object.material.color.b);
+                     cameraZoomIn();
+                 }
 
-                //     console.log("color");
-                //     console.log(intersectStar[ 0 ].object.material.color);
-                // }
+                var intersectCloseStar = raycaster.intersectObject( closeStar );
+                if ( intersectCloseStar.length > 0 ) {
+
+                    $( "#starText" ).fadeOut(500);
+
+                    cameraZoomOutFromParticle();
+
+
+                    $( ".AddParticleBox" ).fadeIn(7000);
+                    $( "#header" ).fadeIn(7000);
+
+                }
 
             } 
 
@@ -592,19 +576,8 @@
                 mouseX = ( 0.5*event.clientX - 0.5*(window.innerWidth / 2) );
                 mouseY = ( 0.5*event.clientY - 0.5*(window.innerWidth / 2) );
 
-
-                // var intersectStar = raycaster.intersectObjects( objects );
-
-                // if ( intersectStar.length > 0 ) {
-                //     intersectStar[ 0 ].object.material.color.setHex( '0x000000' );
-                // }
                 
             }      
-
-            // hideDiv(".AddParticleBox") {
-
-            // }     
-
 
             function onWindowResize() {
                 camera.aspect = window.innerWidth / window.innerHeight;
@@ -625,7 +598,7 @@
                 composer.addPass( effect );
         
                 var bokehPass = new THREE.BokehPass( scene, camera, {
-                    focus: 1.0,
+                    focus: -10,
                     aperture: 55,
                     maxblur: 1000,
                     width: window.innerWidth,
@@ -638,22 +611,30 @@
 
                 //Fokus
                 var effect = new THREE.ShaderPass( THREE.FocusShader );
-                effect.uniforms[ 'sampleDistance' ].value = 2;
-                effect.uniforms[ 'waveFactor' ].value = 0;
+                effect.uniforms[ 'sampleDistance' ].value = 1.8;
+                effect.uniforms[ 'waveFactor' ].value = 0.0;
                 composer.addPass( effect );
 
                 //Film grain
                 var effect = new THREE.ShaderPass( THREE.FilmShader );
                 effect.uniforms[ 'time' ].value = 50;
-                effect.uniforms[ 'nIntensity' ].value = 0.07;
-                effect.uniforms[ 'sIntensity' ].value = 0.005;
-                // effect.uniforms[ 'sCount' ].value = 4000;
-                effect.uniforms[ 'grayscale' ].value = 0.1;
+                effect.uniforms[ 'nIntensity' ].value = 0.08;
+                effect.uniforms[ 'sIntensity' ].value = 0.5;
+                effect.uniforms[ 'sCount' ].value = 4000;
+                effect.uniforms[ 'grayscale' ].value = 0.9;
                 effect.renderToScreen = true;
                 composer.addPass( effect );
 
                 raycaster = new THREE.Raycaster();
             }
+
+            //function loadSound() {
+            //    createjs.Sound.registerSound("audio/Game-Death.mp3", soundID);
+            //}
+//
+            //function playSound() {
+            //    createjs.Sound.play( soundID );
+            //}
 
 
 
@@ -661,10 +642,8 @@
 
                 requestAnimationFrame( animate );
 
-                //timeFrame = clock.getDelta(); 
                 render();
                 stats.update();
-
             }
 
 
@@ -676,9 +655,14 @@
                     objects[ i ].position.y -= Math.random() * (0.01 + 0.01) - 0.01 ;
                 }
 
+                closeStar.position.x -= Math.random() * (0.001 + 0.001) - 0.001 ;
+                closeStar.position.y -= Math.random() * (0.001 + 0.001) - 0.001 ;
+
                 //Movement earth
-                earthMesh.rotation.y += 0.001;
+                earthMesh.rotation.y += 0.0016;
                 earthMesh.rotation.z += ( mouseX - camera.position.x ) * 0.000001;
+                earthMesh.position.x -= Math.random() * (0.0008 + 0.0008) - 0.0008;
+                earthMesh.position.y -= Math.random() * (0.0008 + 0.0008) - 0.0008;
 
                 camera.lookAt( scene.position );
 
@@ -694,30 +678,7 @@
                 envMesh2.position.x -= Math.random() * (0.01 + 0.01) - 0.01;
                 envMesh2.position.y -= Math.random() * (0.01 + 0.01) - 0.01;
 
-
-
-                //---- JAVASCRIPT -----
-                // $( "#clickBox" ).click( function() {
-
-                //     closeStar.visible = true;
-
-                //     //zoom in to particel, closeStar
-                //     cameraZoomIn();
-                // });
-
-
-                $( "#clickBox" ).click( function() {
-                   cameraZoomIn();
-                });
-
-
-
-                //SLUTADE HÄR
-                // $( "#starText" ).click( function() {
-                //     $( ".AddParticleBox" ).fadeIn(1000);
-                //     $( "#header" ).fadeIn(1000);
-                //     $( "#starText" ).fadeOut(2000);
-                // });
+                
 
                 $( ".AddParticleBox" ).click( function() {
 
@@ -725,19 +686,15 @@
                     $( ".BackgroundMenu" ).fadeIn(2000);
                     $( "#header" ).fadeOut(2000);
                     $( ".AddParticleBox" ).fadeOut(4000);
-
-                    // document.getElementById("#clickBox").style.pointerEvents = "none";
                 });
 
 
                 //Fade out menu
                 $( "#start" ).click( function() {
-                    $( ".contentBox" ).fadeOut(3000);
+                    $( ".contentBox" ).fadeOut(2000);
                     $( ".BackgroundMenu" ).fadeOut(2000);
-                    $( "#header" ).fadeIn(2000);
-                    $( ".AddParticleBox" ).fadeIn(4000);
-
-                    // document.getElementById("#clickBox").style.pointerEvents = "all";
+                    $( "#header" ).fadeIn(5000);
+                    $( ".AddParticleBox" ).fadeIn(5000);
                 });
 
                 //Click back button in form  
@@ -747,8 +704,6 @@
                     $( ".addParticleForm" ).fadeOut(2000);
                     $( ".BackgroundMenu" ).fadeOut(2000);
 
-                    // document.getElementById("#clickBox").style.pointerEvents = "all";
-
                     //Ta bort text
                     document.getElementById("theHeadline").innerHTML = "";
                     document.getElementById("theText").innerHTML = "";
@@ -756,13 +711,10 @@
                 });
 
                 $( "#create-btn" ).click( function() {
-                    
                     //ta bort text
                     document.getElementById("theHeadline").innerHTML = "";
                     document.getElementById("theText").innerHTML = "";
                     document.getElementById("theCountry").innerHTML = "";
-
-                    // document.getElementById("#clickBox").style.pointerEvents = "all";
 
                     $( ".AddParticleBox" ).fadeIn(1000);
                     $( "#header" ).fadeIn(1000);
@@ -770,13 +722,6 @@
                     $( ".BackgroundMenu" ).fadeOut(2000);
                     //Ge OK status
                 });
-
-                
-
-                // $("#btn-submit").click(function() {
-                //     $( ".addParticleForm" ).fadeOut(1000);
-                //     $( ".BackgroundMenu" ).fadeOut(1100); 
-                // });
 
                 composer.render();
                 //renderer.render( scene, camera );
