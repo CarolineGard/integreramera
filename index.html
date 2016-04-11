@@ -175,8 +175,9 @@
             var composer;
             var postprocessing = {};
 
-            var colorArray = ['#ff6699', '#ffff66', '#66ff66', '#4db8ff'];
-            var colorArray2 = ['0xff6699', '0xffff66', '0x66ff66', '0x4db8ff'];
+            var colorArray = ['#ff8080', '#ffff66', '#66ff66', '#4db8ff'];
+            var colorArray2 = ['0xff8080', '0xffff66', '0x66ff66', '0x4db8ff'];
+            /*ff8080*/
 
             var zoomFactor = 1.0;
             var zoomInStop = 8.5;
@@ -185,6 +186,8 @@
             var starData = [];
 
             var soundID = "OneClick";
+
+            var starLeft, starRight;
 
             var count = 0;
 
@@ -198,7 +201,7 @@
 
                 camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
                 //Camera angel z: camera.position.z = 100;
-                camera.position.z = -13;
+                camera.position.z = -1;
                 camera.position.y = 0;
                 camera.rotation.x = 40;
 
@@ -261,15 +264,6 @@
                     map: THREE.ImageUtils.loadTexture('images/varmpink.png'),
                     shading: THREE.SmoothShading,
                     specular: 0
-
-                    //shininess: 0
-                    //fog: true
-                    // color: 0xffffff,
-                    // overdraw: 0.9,
-                    // bumpMap: THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
-                    // bumpScale: 0.1,
-                    // specularMap: THREE.ImageUtils.loadTexture('images/earthspec1k.jpg'),
-                    // specular: new THREE.Color('black')
                 });
 
                 earthMesh = new THREE.Mesh( earthGeometry, earthMaterial );
@@ -282,70 +276,7 @@
                     color: 0x000000,
                     fog: false,
                     wireframe: true 
-                    //SmoothShading: true
-                    // shininess: 0,
-                    // castShadow: false
-                    // emissive: 0x000000
                 } );
-
-                envGeometry1 = new THREE.SphereGeometry(10, 10, 10);
-                envGeometry2 = new THREE.SphereGeometry(10, 10, 60);
-                envGeometry3 = new THREE.SphereGeometry(6, 10, 10);
-                // envGeometry4 = new THREE.SphereGeometry(10, 10, 10);
-                // envGeometry5 = new THREE.SphereGeometry(10, 10, 10);
-
-                envMesh1 = new THREE.Mesh(envGeometry1, envMaterial);
-                envMesh2 = new THREE.Mesh(envGeometry2, envMaterial);
-                envMesh3 = new THREE.Mesh(envGeometry3, envMaterial);
-                // envMesh4 = new THREE.Mesh(envGeometry4, envMaterial);
-                // envMesh5 = new THREE.Mesh(envGeometry5, envMaterial);
-
-                envMesh1.position.x = 130;
-                envMesh1.position.y = 40;
-                envMesh1.position.z = -200;
-
-                envMesh2.position.x = -25;
-                envMesh2.position.y = -20;
-                envMesh2.position.z = 55;
-
-                envMesh3.position.x = 10;
-                envMesh3.position.y = 5;
-                envMesh3.position.z = -250;
-
-                envMesh1.material.side = THREE.DoubleSide;    
-
-
-                // envMesh4.position.x = 430;
-                // envMesh4.position.y = 40;
-                // envMesh4.position.z = -200;
-
-                // envMesh5.position.x = 530;
-                // envMesh5.position.y = 40;
-                // envMesh5.position.z = -200;
-                envMesh1.material.color.setHex('0xffcccc');
-                scene.add( envMesh1 );
-                envMesh1.material.color.setHex('0xffffcc');
-                scene.add( envMesh2 );
-                scene.add( envMesh3 );
-                
-                // scene.add( envMesh4 );
-                // scene.add( envMesh5 );
-
-                //playSound();
-                
-                
-
-
-                //Svängning
-                movingParent = new THREE.Object3D();
-                scene.add( movingParent );
-
-                pivot = new THREE.Object3D();
-                pivot.rotation.y = 2 * Math.PI / 3;
-
-                movingParent.add( pivot );
-
-                pivot.add( envMesh3 );
 
 
                 //CLICKABLE PARTICLES ------------------------
@@ -367,36 +298,95 @@
                 });
 
 
+                ///////////////////
+
                 raycaster = new THREE.Raycaster();
                 mouse = new THREE.Vector2();
 
                 //-------------- CLOSE UP STAR --------------
-                var closeStarMaterial = new THREE.MeshBasicMaterial({ color: 0x262626, opacity: 0.0 });
-                closeStarGeometry = new THREE.SphereGeometry(0.4, 100, 20);
+                //star Left
+                var starLeftMaterial = new THREE.MeshBasicMaterial({ color: 0xff8080, opacity: 0.5 });
+                starLeftGeometry = new THREE.SphereGeometry(0.4, 100, 20);
 
-                closeStar = new THREE.Mesh( closeStarGeometry, closeStarMaterial );
+                starLeft = new THREE.Mesh( starLeftGeometry, starLeftMaterial );
 
-                closeStar.position.x = -10 - (0.3*28);
-                closeStar.position.y = 0.01;
-                closeStar.position.z = 6 + (0.19*28);
+                starLeft.position.x = -10 - (0.3*28);
+                starLeft.position.y = 0.01;
+                starLeft.position.z = 6 + (0.19*28);
 
-                scene.add( closeStar );
+                scene.add( starLeft );
+                starLeft.material.side = THREE.DoubleSide;
 
-                closeStar.material.side = THREE.DoubleSide;
 
+                //star Right small
+                var starRightMaterial2 = new THREE.MeshBasicMaterial({ color: 0xffff66, opacity: 0.1 });
+                var theStarRight2 = new THREE.SphereGeometry(0.4, 100, 20);
+
+                starRight2 = new THREE.Mesh( theStarRight2, starRightMaterial2 );
+
+                starRight2.position.x = 16;
+                starRight2.position.y = 0;
+                starRight2.position.z = 16.08;
+
+                scene.add( starRight2 );
+                starRight2.material.side = THREE.DoubleSide;
+
+
+                //Star right big
+                var starRightMaterial = new THREE.MeshBasicMaterial({ color: 0x26a26, visible: false});
+                var theStarRight = new THREE.SphereGeometry(3, 100, 20);
+
+                starRight = new THREE.Mesh( theStarRight, starRightMaterial );
+
+                starRight.position.x = 15;
+                starRight.position.y = 0;
+                starRight.position.z = 15;
+
+                scene.add( starRight );
 
                 //--------------  ENVIRONMENT -------------------------------
-                var mmm = new THREE.MeshBasicMaterial({ color: 0x4db8ff, opacity: 0.0 });
-                var ggggg = new THREE.SphereGeometry(20, 10, 20);
+                //big close star
+                var starBigMaterial = new THREE.MeshBasicMaterial({ color: 0x80d4ff, opacity: 0.1 });
+                var theStarBig = new THREE.SphereGeometry(20, 10, 20);
 
-                var staaaar = new THREE.Mesh( ggggg, mmm );
+                var bigStar = new THREE.Mesh( theStarBig, starBigMaterial );
 
-                staaaar.position.x = -35;
-                staaaar.position.y = -35;
-                staaaar.position.z = 35;
+                bigStar.position.x = -35;
+                bigStar.position.y = -35;
+                bigStar.position.z = 35;
 
-                scene.add( staaaar );
+                scene.add( bigStar );
 
+                //Away
+                var starSmallMaterial = new THREE.MeshBasicMaterial({ color: 0xff4d4d, opacity: 0.0 });
+                var starSmallMaterial2 = new THREE.MeshBasicMaterial({ color: 0x70db70, opacity: 0.0 });
+                var starSmallMaterial3 = new THREE.MeshBasicMaterial({ color: 0xffff4d, opacity: 0.0 });
+                var theStarSmall = new THREE.SphereGeometry(20, 10, 20);
+                var theStarSmall2 = new THREE.SphereGeometry(6, 10, 20);
+                var theStarSmall3 = new THREE.SphereGeometry(4, 10, 20);
+
+                var smallStar = new THREE.Mesh( theStarSmall, starSmallMaterial );
+                var smallStar2 = new THREE.Mesh( theStarSmall2, starSmallMaterial2 );
+                var smallStar3 = new THREE.Mesh( theStarSmall3, starSmallMaterial3 );
+
+                smallStar.position.x = 45;
+                smallStar.position.y = 35;
+                smallStar.position.z = -150;
+
+
+                smallStar2.position.x = 80;
+                smallStar2.position.y = -35;
+                smallStar2.position.z = -60;
+
+                smallStar3.position.x = -60;
+                smallStar3.position.y = 35;
+                smallStar3.position.z = -30;
+
+
+
+                scene.add( smallStar );
+                scene.add( smallStar2 );
+                scene.add( smallStar3 );
 
 
                 //RENDERING------------------
@@ -442,20 +432,13 @@
 
             function cameraZoomIn () { //(cordX, cordY, cordZ) {
 
-                console.log(camera.position.z);
-
                 if ( camera.position.z > ( 12 ) ) {
                     zoomFactor *= 0.99; 
                     camera.position.z -= zoomFactor * 0.98;
                     camera.position.x -= 0.131;
                     
-                    console.log("XXXX:");
-                    console.log(camera.position.x);
                     requestAnimationFrame( cameraZoomIn );
-                
                 }
-
-                
 
                 else {
                     document.getElementById("theHeadline").innerHTML = starData[6].headline;
@@ -463,10 +446,28 @@
                     document.getElementById("theCountry").innerHTML = starData[6].country;
                     $( "#starText" ).fadeIn(1000);
                 }
-                     
-                    
                 render();
+            }
+
+            function cameraZoomIn2 () { //(cordX, cordY, cordZ) {
+
+                if ( camera.position.z > ( 17 ) ) {
+                    zoomFactor *= 0.99; 
+                    camera.position.z -= zoomFactor * 0.98;
+                    camera.position.x += 0.131;
+                    
+                    requestAnimationFrame( cameraZoomIn2 );
+                }
+
                 
+
+                else {
+                    document.getElementById("theHeadline").innerHTML = starData[1].headline;
+                    document.getElementById("theText").innerHTML = starData[1].message;
+                    document.getElementById("theCountry").innerHTML = starData[1].country;
+                    $( "#starText" ).fadeIn(1000);
+                } 
+                render();
             }
 
             function cameraZoomOut() {
@@ -483,7 +484,6 @@
 
                 else {
                     zoomFactor = 1.0;
-                    console.log("klar");
                 }
 
                 render();
@@ -501,7 +501,23 @@
 
                 else {
                     zoomFactor = 1.0;
-                    console.log("klar");
+                }
+
+                render();
+            }
+
+            function cameraZoomOutFromParticle2() {
+
+                if ( camera.position.z < ( 87 ) ) {
+                    zoomFactor *= 1.01; 
+                    camera.position.z += zoomFactor * 0.98;
+                    camera.position.x -= 0.131;
+                    
+                    requestAnimationFrame( cameraZoomOutFromParticle2 );
+                }
+
+                else {
+                    zoomFactor = 1.0;
                 }
 
                 render();
@@ -554,8 +570,8 @@
                      cameraZoomIn();
                  }
 
-                var intersectCloseStar = raycaster.intersectObject( closeStar );
-                if ( intersectCloseStar.length > 0 ) {
+                var intersectCloseStarLeft = raycaster.intersectObject( starLeft );
+                if ( intersectCloseStarLeft.length > 0 ) {
 
                     $( "#starText" ).fadeOut(500);
 
@@ -566,6 +582,30 @@
                     $( "#header" ).fadeIn(7000);
 
                 }
+
+                //Används ej nu
+                var intersectCloseStarRight = raycaster.intersectObject( starRight );
+                if ( intersectCloseStarRight.length > 0 ) {
+
+                    $( ".AddParticleBox" ).fadeOut(1000);
+                    $( "#header" ).fadeOut(1000);
+
+                     cameraZoomIn2();
+
+                }
+
+                var intersectStarRight2 = raycaster.intersectObject( starRight2 );
+                if ( intersectStarRight2.length > 0 ) {
+
+                    $( "#starText" ).fadeOut(500);
+
+                    cameraZoomOutFromParticle2();
+
+                    $( ".AddParticleBox" ).fadeIn(7000);
+                    $( "#header" ).fadeIn(7000);
+                }
+                
+                
 
             } 
 
@@ -628,15 +668,6 @@
                 raycaster = new THREE.Raycaster();
             }
 
-            //function loadSound() {
-            //    createjs.Sound.registerSound("audio/Game-Death.mp3", soundID);
-            //}
-//
-            //function playSound() {
-            //    createjs.Sound.play( soundID );
-            //}
-
-
 
             function animate() {
 
@@ -655,8 +686,8 @@
                     objects[ i ].position.y -= Math.random() * (0.01 + 0.01) - 0.01 ;
                 }
 
-                closeStar.position.x -= Math.random() * (0.001 + 0.001) - 0.001 ;
-                closeStar.position.y -= Math.random() * (0.001 + 0.001) - 0.001 ;
+                starLeft.position.x -= Math.random() * (0.001 + 0.001) - 0.001 ;
+                starLeft.position.y -= Math.random() * (0.001 + 0.001) - 0.001 ;
 
                 //Movement earth
                 earthMesh.rotation.y += 0.0016;
@@ -670,13 +701,13 @@
                 camera.rotation.x -=  ( mouseY - camera.position.y ) * 0.0001;
 
                 //Moving planet in background
-                movingParent.rotation.y += 0.005;
+                //movingParent.rotation.y += 0.005;
 
-                envMesh1.position.x -= Math.random() * (0.1 + 0.1) - 0.1;
-                envMesh1.position.y -= Math.random() * (0.1 + 0.1) - 0.1;
+                //envMesh1.position.x -= Math.random() * (0.1 + 0.1) - 0.1;
+                //envMesh1.position.y -= Math.random() * (0.1 + 0.1) - 0.1;
 
-                envMesh2.position.x -= Math.random() * (0.01 + 0.01) - 0.01;
-                envMesh2.position.y -= Math.random() * (0.01 + 0.01) - 0.01;
+                //envMesh2.position.x -= Math.random() * (0.01 + 0.01) - 0.01;
+                //envMesh2.position.y -= Math.random() * (0.01 + 0.01) - 0.01;
 
                 
 
@@ -732,11 +763,3 @@
 
     </body>
 </html>
-
-
-
-
-
-
-
-
